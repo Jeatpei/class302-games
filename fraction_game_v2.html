@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>披薩切切樂 V2：分數加減大挑戰</title>
+    <style>
+        /* --- 樣式設定開始 --- */
+        body { font-family: '微軟正黑體', sans-serif; background-color: #f4f7f6; text-align: center; padding: 20px; }
+        .container { max-width: 850px; margin: 0 auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        h1 { color: #FF5722; margin-bottom: 10px; font-size: 2.2rem; }
+        .score-board { font-size: 1.2rem; color: #666; margin-bottom: 30px; background: #eee; display: inline-block; padding: 10px 20px; border-radius: 50px;}
+        .game-area { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
+        .fraction-box { display: flex; flex-direction: column; align-items: center; position: relative; }
+        
+        /* 視覺化區域容器 */
+        .visual-container {
+            width: 140px; height: 140px; position: relative; margin-bottom: 10px;
+        }
+        /* 披薩底圖與顏色填充 (CSS Conic Gradient) */
+        .pie-fill { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 4px solid #333; box-sizing: border-box;
+            position: absolute; top: 0; left: 0;
+            /* 預設背景 */
+            background: conic-gradient(#ddd 0% 100%);
+            transition: background 0.5s ease;
+        }
+        /* SVG 切線圖層 (疊加在填充層上方) */
+        .slice-outlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* 讓滑鼠事件穿透 */
+        }
+        /* 切線的樣式：深灰色虛線 */
+        .slice-line {
+            stroke: #444;
+            stroke-width: 2;
+            stroke-dasharray: 4 2; /* 虛線效果 */
+            opacity: 0.7;
+        }
+
+        .operator { font-size: 3rem; font-weight: bold; color: #333; margin: 0 10px; }
+        /* 分數文字顯示優化 */
+        .fraction-text { font-size: 2rem; font-weight: bold; color: #2c3e50; line-height: 1; }
+        .fraction-text sup { font-size: 0.6em; vertical-align: 0.3em; }
+        .fraction-text sub { font-size: 0.6em; vertical-align: -0.2em; }
+        
+        .answer-section { margin-top: 40px; padding: 25px; background: #FFF9C4; border-radius: 20px; }
+        /* 輸入框樣式 */
+        .input-group { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; }
+        input[type=number] { width: 70px; height: 60px; font-size: 2rem; text-align: center; border: 3px solid #FF9800; border-radius: 12px; background: #fff; color: #333; font-weight: bold; }
+        /* 隱藏 input 的上下箭頭 */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .fraction-line { width: 60px; height: 3px; background-color: #333; margin: 5px 0; border-radius: 2px; }
+        .denom-display { font-size: 2rem; font-weight: bold; color: #333; }
+
+        .btn { padding: 12px 35px; font-size: 1.3rem; background-color: #4CAF50; color: white; border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s; margin: 10px; box-shadow: 0 4px #2E7D32; }
+        .btn:hover { background-color: #45a049; transform: translateY(-2px); box-shadow: 0 6px #2E7D32; }
+        .btn:active { transform: translateY(2px); box-shadow: 0 1px #2E7D32; }
+        .btn-new { background-color: #2196F3; display: none; box-shadow: 0 4px #1565C0; }
+        .btn-new:hover { background-color: #1E88E5; box-shadow: 0 6px #1565C0; }
+        
+        #message { margin-top: 25px; font-size: 1.6rem; font-weight: bold; min-height: 50px; padding: 10px; border-radius: 10px; }
+        .correct { color: #2e7d32; background: #C8E6C9; }
+        .wrong { color: #c62828; background: #FFCDD2; }
+        /* --- 樣式設定結束 --- */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍕 披薩切切樂 V2：看圖學分數</h1>
+    <div class="score-board">
+        🔥 連續答對：<span id="streak" style="color: #FF5722; font-weight:bold;">0</span> 題 | 
+        🏆 總分：<span id="score" style="color: #2196F3; font-weight:bold;">0</span>
+    </div>
+
+    <div class="game-area">
+        <div class="fraction-box">
+            <div class="visual-container">
+                <div id="pie1-fill" class="pie-fill"></div>
+                <svg id="pie1-lines" class="slice-outlines" viewBox="0 0 140 140"></svg>
+            </div>
+            <div class="fraction-text" id="frac1"></div>
+        </div>
+
+        <div class="operator" id="operator">+</div>
+
+        <div class="fraction-box">
+            <div class="visual-container">
+                <div id="pie2-fill" class="pie-fill"></div>
+                <svg id="pie2-lines" class="slice-outlines" viewBox="0 0 140 140"></svg>
+            </div>
+            <div class="fraction-text" id="frac2"></div>
+        </div>
+
+        <div class="operator">=</div>
+
+        <div class="fraction-box">
+            <div class="visual-container" style="opacity: 0.6;">
+                <div id="pieAnswer-fill" class="pie-fill" style="background: transparent; border-color: #888; border-style: dashed;"></div>
+                <svg id="pieAnswer-lines" class="slice-outlines" viewBox="0 0 140 140"></svg>
+            </div>
+            <div class="input-group">
+                <input type="number" id="ansNum" placeholder="?">
+                <div class="fraction-line"></div>
+                <span class="denom-display" id="ansDenom">8</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="answer-section">
+        <button class="btn" onclick="checkAnswer()">送出答案</button>
+        <button class="btn btn-new" id="nextBtn" onclick="initGame()">挑戰下一題！</button>
+        <div id="message"></div>
+    </div>
+</div>
+
+<script>
+    let currentNum1, currentNum2, currentDenom, isAddition;
+    let score = 0;
+    let streak = 0;
+
+    // 繪製披薩的函數 (核心改進部分)
+    function drawPie(fillId, linesId, num, denom, color) {
+        // 1. 處理顏色填充 (使用 CSS conic-gradient)
+        const percent = (num / denom) * 100;
+        const fillElement = document.getElementById(fillId);
+        // 如果是答案區且尚未作答(num為0)，保持透明；否則填色
+        if (num === 0 && fillId === 'pieAnswer-fill') {
+             fillElement.style.background = 'transparent';
+        } else {
+             fillElement.style.background = `conic-gradient(${color} 0% ${percent}%, white ${percent}% 100%)`;
+        }
+       
+
+        // 2. 處理切線 (使用 SVG)
+        const svgElement = document.getElementById(linesId);
+        svgElement.innerHTML = ''; // 清空舊的線
+
+        const centerX = 70;
+        const centerY = 70;
+        const radius = 70;
+        const angleStep = 360 / denom;
+
+        for (let i = 0; i < denom; i++) {
+            const angle = i * angleStep;
+            // 計算線條終點座標 (數學部分：將角度轉換為弧度並計算座標)
+            const radian = (angle - 90) * (Math.PI / 180); // -90 是為了從正上方開始
+            const endX = centerX + radius * Math.cos(radian);
+            const endY = centerY + radius * Math.sin(radian);
+
+            // 創建 SVG 線條元素
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", centerX);
+            line.setAttribute("y1", centerY);
+            line.setAttribute("x2", endX);
+            line.setAttribute("y2", endY);
+            line.setAttribute("class", "slice-line");
+            svgElement.appendChild(line);
+        }
+    }
+
+    function initGame() {
+        // 重置介面
+        document.getElementById('message').innerHTML = "";
+        document.getElementById('message').className = "";
+        document.getElementById('ansNum').value = "";
+        document.getElementById('nextBtn').style.display = "none";
+        document.getElementById('ansNum').focus(); // 將游標移到輸入框
+
+        // 隨機生成分母 (4, 5, 6, 8, 9, 10, 12) - 稍微增加一點變化
+        const denoms = [4, 5, 6, 8, 9, 10, 12];
+        currentDenom = denoms[Math.floor(Math.random() * denoms.length)];
+        
+        // 更新答案區的分母顯示
+        document.getElementById('ansDenom').innerText = currentDenom;
+
+        // 決定加法或減法
+        isAddition = Math.random() > 0.5;
+        document.getElementById('operator').innerText = isAddition ? "+" : "-";
+
+        // 生成分子
+        if (isAddition) {
+            // 加法：確保和不超過 1 (真分數)
+            currentNum1 = Math.floor(Math.random() * (currentDenom - 2)) + 1;
+            let maxNum2 = currentDenom - currentNum1;
+            currentNum2 = Math.floor(Math.random() * maxNum2) + 1;
+        } else {
+            // 減法：確保第一個數大於第二個數
+            currentNum1 = Math.floor(Math.random() * (currentDenom - 2)) + 2; // 至少是 2/N
+            currentNum2 = Math.floor(Math.random() * (currentNum1 - 1)) + 1;
+        }
+
+        // 更新文字顯示 (使用 sup 和 sub 標籤讓分數更漂亮)
+        document.getElementById('frac1').innerHTML = `<sup>${currentNum1}</sup>&frasl;<sub>${currentDenom}</sub>`;
+        document.getElementById('frac2').innerHTML = `<sup>${currentNum2}</sup>&frasl;<sub>${currentDenom}</sub>`;
+
+        // 繪製題目圖形
+        drawPie('pie1-fill', 'pie1-lines', currentNum1, currentDenom, '#FF7043'); // 橘紅色
+        drawPie('pie2-fill', 'pie2-lines', currentNum2, currentDenom, '#42A5F5'); // 藍色
+        // 繪製答案區的空切線圖 (分子傳 0，只畫線不填色)
+        drawPie('pieAnswer-fill', 'pieAnswer-lines', 0, currentDenom, 'transparent');
+    }
+
+    function checkAnswer() {
+        const userAnsInput = document.getElementById('ansNum');
+        const userAns = parseInt(userAnsInput.value);
+        
+        // 簡單的防呆：沒輸入數字就送出
+        if (isNaN(userAns)) {
+             document.getElementById('message').innerText = "🤔 記得填寫答案喔！";
+             document.getElementById('message').className = "";
+             userAnsInput.focus();
+             return;
+        }
+
+        let correctAns;
+        if (isAddition) {
+            correctAns = currentNum1 + currentNum2;
+        } else {
+            correctAns = currentNum1 - currentNum2;
+        }
+
+        const msgDiv = document.getElementById('message');
+        
+        if (userAns === correctAns) {
+            score += 10;
+            streak++;
+            msgDiv.innerHTML = `🎉 答對了！太棒了！<br> ${currentNum1} 片 + ${currentNum2} 片 = ${correctAns} 片！`;
+            msgDiv.className = "correct";
+            // 顯示正確圖形 (綠色)
+            drawPie('pieAnswer-fill', 'pieAnswer-lines', correctAns, currentDenom, '#66BB6A');
+            document.getElementById('nextBtn').style.display = "inline-block";
+            document.getElementById('nextBtn').focus(); // 將焦點移到下一題按鈕
+        } else {
+            streak = 0;
+            msgDiv.innerHTML = `😅 哎呀，再試試看！<br>看看圖，分母(切成幾份)是不變的，只要看分子(塗色幾份)就好囉！`;
+            msgDiv.className = "wrong";
+            userAnsInput.select(); // 選取錯誤答案方便重輸
+        }
+
+        // 更新分數板
+        document.getElementById('score').innerText = score;
+        document.getElementById('streak').innerText = streak;
+    }
+
+    // 監聽 Enter 鍵，方便操作
+    document.getElementById('ansNum').addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        checkAnswer();
+      }
+    });
+
+    // 初始化遊戲
+    initGame();
+</script>
+
+</body>
+</html>

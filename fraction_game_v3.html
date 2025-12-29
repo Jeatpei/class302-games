@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>披薩切切樂 V3：異分母大挑戰</title>
+    <style>
+        /* --- 樣式設定 (沿用 V2 風格但微調) --- */
+        body { font-family: '微軟正黑體', sans-serif; background-color: #fff8e1; text-align: center; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { color: #d84315; margin-bottom: 10px; font-size: 2.2rem; }
+        .score-board { font-size: 1.2rem; color: #666; margin-bottom: 30px; background: #eee; display: inline-block; padding: 10px 20px; border-radius: 50px;}
+        .game-area { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
+        .fraction-box { display: flex; flex-direction: column; align-items: center; position: relative; width: 160px; }
+        
+        .visual-container { width: 140px; height: 140px; position: relative; margin-bottom: 10px; }
+        
+        /* 披薩底圖 */
+        .pie-fill { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 4px solid #333; box-sizing: border-box;
+            position: absolute; top: 0; left: 0;
+            background: conic-gradient(#eee 0% 100%);
+            transition: background 0.5s ease;
+        }
+        
+        /* SVG 線條層 */
+        .slice-outlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* 實線切痕 (原本的分母) */
+        .slice-line { stroke: #333; stroke-width: 2.5; stroke-dasharray: none; }
+        
+        /* 虛線切痕 (通分提示用) */
+        .ghost-line { stroke: #aaa; stroke-width: 1.5; stroke-dasharray: 3 3; }
+
+        .operator { font-size: 2.5rem; font-weight: bold; color: #333; margin: 0 5px; }
+        
+        .fraction-text { font-size: 2rem; font-weight: bold; color: #2c3e50; margin-top: 5px; }
+        .fraction-text sup { font-size: 0.6em; vertical-align: 0.3em; }
+        .fraction-text sub { font-size: 0.6em; vertical-align: -0.2em; }
+        
+        .answer-section { margin-top: 40px; padding: 25px; background: #e0f2f1; border-radius: 20px; }
+        
+        /* 雙輸入框樣式 */
+        .input-group { display: inline-flex; flex-direction: column; align-items: center; }
+        input[type=number] { 
+            width: 70px; height: 55px; font-size: 1.8rem; text-align: center; 
+            border: 3px solid #009688; border-radius: 12px; background: #fff; 
+            color: #333; font-weight: bold; 
+        }
+        input:focus { outline: none; border-color: #004d40; background: #e0f2f1; }
+        .fraction-line { width: 60px; height: 3px; background-color: #333; margin: 5px 0; border-radius: 2px; }
+
+        .btn { padding: 12px 35px; font-size: 1.3rem; background-color: #ff9800; color: white; border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s; margin: 10px; box-shadow: 0 4px #e65100; }
+        .btn:hover { background-color: #fb8c00; transform: translateY(-2px); }
+        .btn-new { background-color: #2196F3; display: none; box-shadow: 0 4px #1565C0; }
+        
+        #message { margin-top: 25px; font-size: 1.6rem; font-weight: bold; min-height: 50px; padding: 10px; border-radius: 10px; }
+        .correct { color: #2e7d32; background: #C8E6C9; }
+        .wrong { color: #c62828; background: #FFCDD2; }
+        
+        .hint-text { font-size: 0.9rem; color: #777; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍕 披薩切切樂 V3：異分母大挑戰</h1>
+    <p class="hint-text">仔細看灰色的虛線，想想看怎麼變成分母一樣的披薩？</p>
+    <div class="score-board">
+        🔥 連續答對：<span id="streak" style="color: #FF5722; font-weight:bold;">0</span> 題 | 
+        🏆 總分：<span id="score" style="color: #2196F3; font-weight:bold;">0</span>
+    </div>
+
+    <div class="game-area">
+        <div class="fraction-box">
+            <div class="visual-container">
+                <div id="pie1-fill" class="pie-fill"></div>
+                <svg id="pie1-lines" class="slice-outlines" viewBox="0 0 140 140"></svg>
+            </div>
+            <div class="fraction-text" id="frac1"></div>
+        </div>
+
+        <div class="operator" id="operator">+</div>
+
+        <div class="fraction-box">
+            <div class="visual-container">
+                <div id="pie2-fill" class="pie-fill"></div>
+                <svg id="pie2-lines" class="slice-outlines" viewBox="0 0 140 140"></svg>
+            </div>
+            <div class="fraction-text" id="frac2"></div>
+        </div>
+
+        <div class="operator">=</div>
+
+        <div class="fraction-box">
+            <div class="visual-container" style="opacity: 0.8;">
+                <div id="pieAnswer-fill" class="pie-fill" style="background: transparent; border-color: #888; border-style: dashed;"></div>
+                <svg id="pieAnswer-lines" class="slice-outlines" viewBox="0 0 140 140"></svg>
+            </div>
+            <div class="input-group">
+                <input type="number" id="ansNum" placeholder="?">
+                <div class="fraction-line"></div>
+                <input type="number" id="ansDenom" placeholder="?">
+            </div>
+        </div>
+    </div>
+
+    <div class="answer-section">
+        <button class="btn" onclick="checkAnswer()">送出答案</button>
+        <button class="btn btn-new" id="nextBtn" onclick="initGame()">下一題挑戰！</button>
+        <div id="message"></div>
+    </div>
+</div>
+
+<script>
+    // 全域變數
+    let d1, n1, d2, n2, commonD; 
+    let isAddition;
+    let score = 0, streak = 0;
+
+    // 繪製函數：支援「實線 (原本分母)」與「虛線 (通分提示)」
+    function drawPie(fillId, linesId, num, denom, color, targetDenom = null) {
+        // 1. 填色
+        const percent = (num / denom) * 100;
+        const fillElement = document.getElementById(fillId);
+        if (num === 0 && fillId === 'pieAnswer-fill') {
+             fillElement.style.background = 'transparent';
+        } else {
+             fillElement.style.background = `conic-gradient(${color} 0% ${percent}%, white ${percent}% 100%)`;
+        }
+
+        // 2. 畫線
+        const svgElement = document.getElementById(linesId);
+        svgElement.innerHTML = ''; 
+
+        const centerX = 70, centerY = 70, radius = 70;
+
+        // 判斷是否需要畫「提示虛線」
+        // 如果 targetDenom 存在且大於原本 denom，代表需要畫虛線來補足
+        const drawGhostLines = targetDenom && targetDenom > denom;
+        const totalLines = drawGhostLines ? targetDenom : denom;
+        const angleStep = 360 / totalLines;
+
+        for (let i = 0; i < totalLines; i++) {
+            const angle = i * angleStep;
+            const radian = (angle - 90) * (Math.PI / 180);
+            const endX = centerX + radius * Math.cos(radian);
+            const endY = centerY + radius * Math.sin(radian);
+
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", centerX);
+            line.setAttribute("y1", centerY);
+            line.setAttribute("x2", endX);
+            line.setAttribute("y2", endY);
+
+            // 判斷這條線是「原本的實線」還是「新增的虛線」
+            // 數學原理：如果目前的線數 i 是 (targetDenom / denom) 的倍數，代表它跟原本的線重疊
+            const ratio = targetDenom ? (targetDenom / denom) : 1;
+            
+            if (i % ratio === 0) {
+                line.setAttribute("class", "slice-line"); // 實線
+            } else {
+                line.setAttribute("class", "ghost-line"); // 虛線
+            }
+            
+            svgElement.appendChild(line);
+        }
+    }
+
+    function initGame() {
+        // 重置
+        document.getElementById('message').innerHTML = "";
+        document.getElementById('message').className = "";
+        document.getElementById('ansNum').value = "";
+        document.getElementById('ansDenom').value = "";
+        document.getElementById('nextBtn').style.display = "none";
+        document.getElementById('ansNum').focus();
+
+        // 1. 設定分母對 (倍數關係)
+        // 格式: [小分母, 大分母]
+        const pairs = [[2, 4], [3, 6], [4, 8], [2, 6], [2, 8], [5, 10], [6, 12], [4, 12]];
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        
+        // 隨機決定誰左誰右
+        if (Math.random() > 0.5) {
+            d1 = pair[0]; d2 = pair[1];
+        } else {
+            d1 = pair[1]; d2 = pair[0];
+        }
+        
+        // 找出公分母 (因為是倍數關係，就是較大的那個數)
+        commonD = Math.max(d1, d2);
+
+        // 2. 決定運算符號
+        isAddition = Math.random() > 0.5;
+        document.getElementById('operator').innerText = isAddition ? "+" : "-";
+
+        // 3. 生成分子
+        // 先生成通分後的分子，確保好計算
+        // 目標：確保 (n1 * ratio1) +/- (n2 * ratio2) 是一個合理的正整數
+        
+        // 簡單化策略：
+        // 讓兩個分數都產生，然後檢查合不合法。
+        let isValid = false;
+        while (!isValid) {
+            n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+            n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+            
+            // 計算通分後的分子值
+            let val1 = n1 * (commonD / d1);
+            let val2 = n2 * (commonD / d2);
+            
+            if (isAddition) {
+                if (val1 + val2 < commonD) isValid = true; // 和是真分數
+            } else {
+                if (val1 - val2 > 0) isValid = true; // 差是正數
+            }
+        }
+
+        // 4. 更新畫面
+        document.getElementById('frac1').innerHTML = `<sup>${n1}</sup>&frasl;<sub>${d1}</sub>`;
+        document.getElementById('frac2').innerHTML = `<sup>${n2}</sup>&frasl;<sub>${d2}</sub>`;
+
+        // 繪圖重點：帶入 commonD 作為 targetDenom，讓程式畫出提示虛線
+        drawPie('pie1-fill', 'pie1-lines', n1, d1, '#FF7043', commonD); 
+        drawPie('pie2-fill', 'pie2-lines', n2, d2, '#42A5F5', commonD);
+        
+        // 答案區先畫出公分母的格線 (全透明)
+        drawPie('pieAnswer-fill', 'pieAnswer-lines', 0, commonD, 'transparent');
+    }
+
+    function checkAnswer() {
+        const userNum = parseInt(document.getElementById('ansNum').value);
+        const userDenom = parseInt(document.getElementById('ansDenom').value);
+
+        if (isNaN(userNum) || isNaN(userDenom)) {
+            document.getElementById('message').innerText = "✍️ 分子和分母都要填寫喔！";
+            return;
+        }
+
+        // 計算正確答案 (通分後的運算)
+        let val1 = n1 * (commonD / d1);
+        let val2 = n2 * (commonD / d2);
+        let correctNum = isAddition ? (val1 + val2) : (val1 - val2);
+        
+        const msgDiv = document.getElementById('message');
+
+        // 檢查邏輯：
+        // 這裡設定：只要數值正確就算對 (例如答案是 2/4，學生填 1/2 也算對，或者堅持要填通分後的 2/4)
+        // 為了教學「異分母相加」，通常希望學生填「通分後的分母」。
+        // 所以這裡嚴格檢查：分母必須是 commonD (或是最簡分數? 既然是教學，先鎖定 commonD 比較單純)
+        
+        // 寬容模式：只要值相等就算對
+        let userVal = userNum / userDenom;
+        let correctVal = correctNum / commonD;
+        
+        // 浮點數比對微小誤差處理
+        if (Math.abs(userVal - correctVal) < 0.0001) {
+            score += 10;
+            streak++;
+            msgDiv.innerHTML = `🎉 答對了！<br>通分後變成： ${val1}/${commonD} ${isAddition?'+':'-'} ${val2}/${commonD} = ${correctNum}/${commonD}`;
+            msgDiv.className = "correct";
+            
+            // 顯示正確圖形
+            drawPie('pieAnswer-fill', 'pieAnswer-lines', correctNum, commonD, '#66BB6A');
+            document.getElementById('nextBtn').style.display = "inline-block";
+            document.getElementById('nextBtn').focus();
+        } else {
+            streak = 0;
+            // 針對分母填錯的特別提示
+            if (userDenom !== commonD) {
+                 msgDiv.innerHTML = `😅 答案不對喔！<br>提示：看看圖上的虛線，把分母都變成 <b>${commonD}</b> 試試看？`;
+            } else {
+                 msgDiv.innerHTML = `😅 分母對了，但分子算錯囉！再算一次！`;
+            }
+            msgDiv.className = "wrong";
+        }
+
+        document.getElementById('score').innerText = score;
+        document.getElementById('streak').innerText = streak;
+    }
+    
+    // 監聽 Enter 鍵 (任意輸入框按 Enter 都可以送出)
+    document.querySelectorAll('input').forEach(item => {
+        item.addEventListener('keypress', event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                checkAnswer();
+            }
+        })
+    });
+
+    initGame();
+</script>
+
+</body>
+</html>

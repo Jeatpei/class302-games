@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>披薩切切樂：分數加減大挑戰</title>
+    <style>
+        body { font-family: '微軟正黑體', sans-serif; background-color: #f0f8ff; text-align: center; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { color: #ff6b6b; margin-bottom: 10px; }
+        .score-board { font-size: 1.2rem; color: #555; margin-bottom: 20px; }
+        .game-area { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 40px 0; flex-wrap: wrap; }
+        .fraction-box { display: flex; flex-direction: column; align-items: center; }
+        .visual { width: 120px; height: 120px; border-radius: 50%; background: #ddd; position: relative; border: 4px solid #333; }
+        .operator { font-size: 3rem; font-weight: bold; color: #333; }
+        .fraction-text { font-size: 2rem; margin-top: 10px; font-weight: bold; color: #2c3e50; }
+        
+        /* 繪製圓餅圖的 CSS 技巧 */
+        .pie { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(orange 0% 0%, white 0% 100%); }
+        
+        .answer-section { margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 15px; }
+        input { width: 60px; height: 50px; font-size: 1.5rem; text-align: center; border: 2px solid #ccc; border-radius: 10px; }
+        .btn { padding: 10px 30px; font-size: 1.2rem; background-color: #4CAF50; color: white; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; margin-left: 10px; }
+        .btn:hover { background-color: #45a049; transform: scale(1.05); }
+        .btn-new { background-color: #2196F3; display: none; margin-top: 20px; }
+        
+        #message { margin-top: 20px; font-size: 1.5rem; font-weight: bold; min-height: 40px; }
+        .correct { color: green; }
+        .wrong { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍕 披薩切切樂：分數大挑戰</h1>
+    <div class="score-board">
+        連續答對：<span id="streak">0</span> 題 | 
+        總分：<span id="score">0</span>
+    </div>
+
+    <div class="game-area">
+        <div class="fraction-box">
+            <div class="visual"><div id="pie1" class="pie"></div></div>
+            <div class="fraction-text" id="frac1">2/8</div>
+        </div>
+
+        <div class="operator" id="operator">+</div>
+
+        <div class="fraction-box">
+            <div class="visual"><div id="pie2" class="pie"></div></div>
+            <div class="fraction-text" id="frac2">3/8</div>
+        </div>
+
+        <div class="operator">=</div>
+
+        <div class="fraction-box">
+            <div class="visual" style="border: 4px dashed #aaa; background: transparent;">
+                <div id="pieAnswer" class="pie" style="opacity: 0.5;"></div>
+            </div>
+            <div class="fraction-text">
+                <input type="number" id="ansNum" placeholder="?">
+                <hr style="width: 50px; border: 2px solid #333; margin: 5px 0;">
+                <span id="ansDenom">8</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="answer-section">
+        <button class="btn" onclick="checkAnswer()">送出答案</button>
+        <button class="btn btn-new" id="nextBtn" onclick="initGame()">下一題</button>
+        <div id="message"></div>
+    </div>
+</div>
+
+<script>
+    let currentNum1, currentNum2, currentDenom, isAddition;
+    let score = 0;
+    let streak = 0;
+
+    function initGame() {
+        // 重置介面
+        document.getElementById('message').innerHTML = "";
+        document.getElementById('ansNum').value = "";
+        document.getElementById('nextBtn').style.display = "none";
+        document.getElementById('pieAnswer').style.background = "none";
+
+        // 隨機生成分母 (4, 5, 6, 8, 10, 12) - 適合3年級的常見分母
+        const denoms = [4, 5, 6, 8, 10, 12];
+        currentDenom = denoms[Math.floor(Math.random() * denoms.length)];
+        
+        // 更新答案區的分母顯示
+        document.getElementById('ansDenom').innerText = currentDenom;
+
+        // 決定加法或減法
+        isAddition = Math.random() > 0.5;
+        document.getElementById('operator').innerText = isAddition ? "+" : "-";
+
+        // 生成分子
+        if (isAddition) {
+            // 加法：總和不能超過 1 (真分數)
+            currentNum1 = Math.floor(Math.random() * (currentDenom - 2)) + 1;
+            let maxNum2 = currentDenom - currentNum1;
+            currentNum2 = Math.floor(Math.random() * maxNum2) + 1;
+        } else {
+            // 減法：第一個數要大於第二個數
+            currentNum1 = Math.floor(Math.random() * (currentDenom - 1)) + 1;
+            // 確保 num1 足夠大，能被減
+            if(currentNum1 < 2) currentNum1 = 2; 
+            currentNum2 = Math.floor(Math.random() * (currentNum1 - 1)) + 1;
+        }
+
+        // 更新文字顯示
+        document.getElementById('frac1').innerHTML = `<sup>${currentNum1}</sup>&frasl;<sub>${currentDenom}</sub>`;
+        document.getElementById('frac2').innerHTML = `<sup>${currentNum2}</sup>&frasl;<sub>${currentDenom}</sub>`;
+
+        // 更新圖形 (CSS Conic Gradient)
+        drawPie('pie1', currentNum1, currentDenom, '#ff9f43');
+        drawPie('pie2', currentNum2, currentDenom, '#54a0ff');
+    }
+
+    function drawPie(elementId, num, denom, color) {
+        const percent = (num / denom) * 100;
+        document.getElementById(elementId).style.background = 
+            `conic-gradient(${color} 0% ${percent}%, white ${percent}% 100%)`;
+    }
+
+    function checkAnswer() {
+        const userAns = parseInt(document.getElementById('ansNum').value);
+        let correctAns;
+
+        if (isAddition) {
+            correctAns = currentNum1 + currentNum2;
+        } else {
+            correctAns = currentNum1 - currentNum2;
+        }
+
+        const msgDiv = document.getElementById('message');
+        
+        if (userAns === correctAns) {
+            score += 10;
+            streak++;
+            msgDiv.innerHTML = "🎉 答對了！太棒了！";
+            msgDiv.className = "correct";
+            // 顯示正確圖形
+            drawPie('pieAnswer', correctAns, currentDenom, '#2ed573');
+            document.getElementById('nextBtn').style.display = "inline-block";
+        } else {
+            streak = 0;
+            msgDiv.innerHTML = `😅 哎呀，再試試看！<br>提示：分母是 ${currentDenom}，只要算 ${currentNum1} ${isAddition ? '+' : '-'} ${currentNum2} 喔！`;
+            msgDiv.className = "wrong";
+        }
+
+        // 更新分數板
+        document.getElementById('score').innerText = score;
+        document.getElementById('streak').innerText = streak;
+    }
+
+    // 初始化遊戲
+    initGame();
+</script>
+
+</body>
+</html>

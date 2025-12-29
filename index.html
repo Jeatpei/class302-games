@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三年二班 快樂學習遊樂場</title>
+    <style>
+        :root { --primary: #FF9800; --bg: #FFF3E0; --math: #42A5F5; --chn: #66BB6A; --life: #AB47BC; }
+        body { font-family: '微軟正黑體', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; text-align: center; }
+        
+        header { margin-bottom: 30px; }
+        h1 { color: #E65100; margin: 0; font-size: 2.5rem; letter-spacing: 2px; text-shadow: 2px 2px 0px rgba(255,255,255,0.5); }
+        p { color: #795548; font-size: 1.2rem; }
+
+        /* 科目區塊容器 */
+        .subject-section { 
+            background: white; border-radius: 20px; padding: 25px; margin: 0 auto 30px auto; 
+            max-width: 900px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+        }
+        
+        /* 科目標題 */
+        .subject-title { 
+            font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; display: inline-block; 
+            padding: 8px 25px; border-radius: 50px; color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        /* 數學配色 */
+        .math-theme .subject-title { background: var(--math); }
+        .math-theme .game-card { border: 2px solid var(--math); color: var(--math); }
+        .math-theme .game-card:hover { background: var(--math); color: white; }
+
+        /* 國語配色 */
+        .chn-theme .subject-title { background: var(--chn); }
+        .chn-theme .game-card { border: 2px solid var(--chn); color: var(--chn); }
+        .chn-theme .game-card:hover { background: var(--chn); color: white; }
+        
+        /* 生活/綜合配色 */
+        .life-theme .subject-title { background: var(--life); }
+        .life-theme .game-card { border: 2px solid var(--life); color: var(--life); }
+        .life-theme .game-card:hover { background: var(--life); color: white; }
+
+        /* 遊戲卡片網格 */
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+
+        /* 遊戲卡片按鈕 */
+        .game-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 120px; border-radius: 15px; cursor: pointer; transition: 0.2s; text-decoration: none;
+            background: white; font-weight: bold; font-size: 1.2rem;
+        }
+        .game-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .game-card span { font-size: 2rem; margin-bottom: 5px; }
+
+        footer { margin-top: 50px; color: #aaa; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎮 快樂學習遊樂場</h1>
+        <p>選一個科目，開始挑戰吧！</p>
+    </header>
+
+    <div id="app">
+        </div>
+
+    <footer>
+        Designed for 3rd Grade Class
+    </footer>
+
+<script>
+    // ==========================================
+    // 👨‍🏫 老師設定區：請在這裡「新增」您的遊戲
+    // ==========================================
+    
+    // 格式：{ id: "科目代號", title: "科目名稱", theme: "配色主題", games: [ ... ] }
+    const classroomData = [
+        {
+            id: "math",
+            title: "🧮 數學小達人",
+            theme: "math-theme", // 對應上面的 CSS (math-theme, chn-theme, life-theme)
+            games: [
+                // 每一行就是一個遊戲單元
+                // name: 顯示的名稱, file: 檔案名稱(要跟資料夾裡的檔名一樣), icon: 圖示
+                { name: "分數切切樂", file: "fraction_game_v3.html", icon: "🍕" },
+                { name: "算式合體工廠", file: "merge_game_v2.html", icon: "🏭" },
+                // 未來要新增單元，就在這裡複製一行，改掉名稱和檔名即可
+            ]
+        },
+        {
+            id: "chinese",
+            title: "📖 國語文高手",
+            theme: "chn-theme",
+            games: [
+                // 範例：如果之後有做成語遊戲
+                { name: "成語接龍(範例)", file: "#", icon: "🐉" }, 
+                { name: "生字大挑戰(範例)", file: "#", icon: "✍️" }
+            ]
+        },
+        {
+            id: "life",
+            title: "🌍 生活探險家",
+            theme: "life-theme",
+            games: [
+                { name: "社區探查地圖", file: "#", icon: "🗺️" }
+            ]
+        }
+    ];
+
+    // ==========================================
+    // 🤖 系統自動生成區 (老師不用動這裡)
+    // ==========================================
+    const app = document.getElementById('app');
+
+    classroomData.forEach(subject => {
+        // 1. 建立科目區塊
+        const section = document.createElement('div');
+        section.className = `subject-section ${subject.theme}`;
+        
+        // 2. 建立標題
+        const title = document.createElement('div');
+        title.className = 'subject-title';
+        title.innerText = subject.title;
+        section.appendChild(title);
+
+        // 3. 建立網格
+        const grid = document.createElement('div');
+        grid.className = 'games-grid';
+
+        // 4. 建立每一個遊戲按鈕
+        subject.games.forEach(game => {
+            const link = document.createElement('a');
+            link.className = 'game-card';
+            link.href = game.file; // 連結到檔案
+            link.target = "_blank"; // 在新分頁開啟
+            
+            // 處理還沒做好的遊戲 (連結是 # 時)
+            if(game.file === "#") {
+                link.onclick = (e) => { 
+                    e.preventDefault(); 
+                    alert("🚧 這個單元老師還在努力製作中，敬請期待！"); 
+                };
+            }
+
+            link.innerHTML = `
+                <span>${game.icon}</span>
+                ${game.name}
+            `;
+            grid.appendChild(link);
+        });
+
+        section.appendChild(grid);
+        app.appendChild(section);
+    });
+</script>
+
+</body>
+</html>
