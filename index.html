@@ -2,136 +2,139 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>班級線上遊樂場 (智慧連動版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>傑特佩小遊戲網</title>
     <style>
-        :root { --bg: #FFF3E0; --card-bg: #fff; }
-        body { font-family: '微軟正黑體', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; text-align: center; }
-        
-        header { margin-bottom: 40px; }
-        h1 { color: #E65100; margin: 0; font-size: 2.5rem; text-shadow: 2px 2px 0px rgba(255,255,255,0.5); }
-        .loading { font-size: 1.5rem; color: #795548; font-weight: bold; margin-top: 50px; }
-
-        /* 科目區塊 */
-        .subject-section { 
-            background: white; border-radius: 20px; padding: 25px; margin: 0 auto 30px auto; 
-            max-width: 900px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); text-align: left;
+        :root {
+            --primary: #FF9800; /* 活力橘 */
+            --secondary: #4CAF50; /* 知識綠 */
+            --danger: #F44336; /* 闖關紅 */
+            --info: #2196F3; /* 創作藍 */
+            --dark: #37474F;
+            --light: #ECEFF1;
         }
         
-        .subject-title { 
-            font-size: 1.6rem; font-weight: bold; margin-bottom: 20px; display: inline-block; 
-            padding: 8px 25px; border-radius: 50px; color: white; background: #555;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        body {
+            font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0;
+            background-color: var(--light); color: var(--dark);
+            /* 防止手機左右滑動 */
+            overflow-x: hidden; 
         }
 
-        /* 自動配色邏輯：根據科目名稱雜湊顏色 */
-        .color-0 .subject-title { background: #42A5F5; } /* 藍 */
-        .color-1 .subject-title { background: #66BB6A; } /* 綠 */
-        .color-2 .subject-title { background: #AB47BC; } /* 紫 */
-        .color-3 .subject-title { background: #FF7043; } /* 橘 */
+        /* 手機版頂部導航 */
+        header {
+            background: var(--dark); color: white; padding: 15px;
+            text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        h1 { margin: 0; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
 
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        /* 主選單容器 (Grid 佈局) */
+        .menu-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 兩欄 */
+            gap: 15px; padding: 20px;
+            max-width: 600px; margin: 0 auto;
+        }
 
-        .game-card {
+        /* 四大區塊卡片 */
+        .menu-card {
+            background: white; border-radius: 20px; padding: 20px 10px;
+            text-align: center; cursor: pointer; transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 130px; border-radius: 15px; cursor: pointer; transition: 0.2s; text-decoration: none;
-            background: #fafafa; border: 2px solid #eee; color: #555; font-weight: bold; font-size: 1.1rem;
+            height: 140px; text-decoration: none; color: inherit;
         }
-        .game-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-color: #aaa; }
-        .game-card .icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .menu-card:active { transform: scale(0.95); }
 
-        footer { margin-top: 50px; color: #aaa; font-size: 0.9rem; }
+        .icon { font-size: 3rem; margin-bottom: 10px; }
+        .card-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        .card-desc { font-size: 0.75rem; color: #78909c; }
+
+        /* 各區塊配色 */
+        .card-simple { border-bottom: 5px solid var(--primary); }
+        .card-simple .icon { color: var(--primary); }
+
+        .card-know { border-bottom: 5px solid var(--secondary); }
+        .card-know .icon { color: var(--secondary); }
+
+        .card-adv { border-bottom: 5px solid var(--danger); grid-column: span 2; /* 橫跨兩欄 */ }
+        .card-adv .icon { color: var(--danger); }
+
+        .card-upload { border-bottom: 5px solid var(--info); grid-column: span 2; background: #E3F2FD; }
+        .card-upload .icon { color: var(--info); }
+
+        /* 底部資訊 */
+        footer {
+            text-align: center; padding: 20px; color: #90a4ae; font-size: 0.8rem;
+            margin-top: 20px;
+        }
+
+        /* 模擬手機螢幕寬度 (桌機看的時候比較準) */
+        @media (min-width: 600px) {
+            body { background: #cfd8dc; }
+            #app-frame {
+                max-width: 480px; margin: 0 auto; background: var(--light); min-height: 100vh;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+        }
     </style>
 </head>
 <body>
 
+<div id="app-frame">
     <header>
-        <h1>🎮 快樂學習遊樂場</h1>
-        <p>資料來源：Google 試算表自動同步</p>
+        <h1>🎮 傑特佩小遊戲網</h1>
+        <div class="subtitle">Jetpay Mini Game Network</div>
     </header>
 
-    <div id="app">
-        <div class="loading">⏳ 正在從雲端讀取遊戲列表...</div>
+    <div class="menu-container">
+        <a href="simple_games.html" class="menu-card card-simple" onclick="alert('第一區：建置中...')">
+            <div class="icon">🧩</div>
+            <div class="card-title">簡單遊戲區</div>
+            <div class="card-desc">輕鬆玩．練反應 (1-4年級)</div>
+        </a>
+
+        <a href="knowledge_games.html" class="menu-card card-know" onclick="alert('第二區：建置中...')">
+            <div class="icon">📚</div>
+            <div class="card-title">小學知識區</div>
+            <div class="card-desc">國數社自英．全科挑戰 (3-6年級)</div>
+        </a>
+
+        <a href="adventure_map.html" class="menu-card card-adv" onclick="alert('第三區：建置中...')">
+            <div class="icon">🏰</div>
+            <div class="card-title">闖關升級地圖</div>
+            <div class="card-desc">收集道具．挑戰終點．獲得獎章</div>
+        </a>
+
+        <a href="upload_zone.html" class="menu-card card-upload" onclick="alert('第四區：建置中...')">
+            <div class="icon">🚀</div>
+            <div class="card-title">我是遊戲王 (上傳區)</div>
+            <div class="card-desc">上傳你的 Code．爭奪點閱排行冠軍</div>
+        </a>
     </div>
 
-    <footer>Designed for Class</footer>
+    <div style="padding: 0 20px;">
+        <h3 style="margin-bottom: 10px; color: #546E7A;">🔥 本週熱門遊戲王</h3>
+        <div style="background: white; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <span style="font-size: 1.5rem;">🥇</span>
+            <div>
+                <div style="font-weight: bold;">超級算術大戰</div>
+                <div style="font-size: 0.8rem; color: #888;">作者：四年二班 小明 | 點閱：1,205</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Designed for Elementary Students<br>
+        &copy; 2025 傑特佩小遊戲網
+    </footer>
+</div>
 
 <script>
-    // =========================================================================
-    // 🔴 老師請改這裡：請把下方的網址，換成您 Google 試算表發布的 CSV 連結
-    // =========================================================================
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQk5aCQUCeMnJBP0NLh0QfN9p0vFdEkaxiYZAGE1zFqTRMdtTpMDRuye70O1x1wEMvlJlxmDECgjmQv/pub?output=csv"; 
-    // 例如: "https://docs.google.com/spreadsheets/d/e/2PACX-xxxx/pub?output=csv"
-
-    
-    // --- 以下程式碼不用動，它會自動搬運資料 ---
-    async function loadGames() {
-        const app = document.getElementById('app');
-        
-        try {
-            const response = await fetch(sheetUrl);
-            if (!response.ok) throw new Error("讀取失敗");
-            const text = await response.text();
-            
-            // 解析 CSV
-            const rows = text.split(/\r\n|\n/).slice(1); // 去掉標題列
-            const data = {}; // 依科目分組 { "數學區": [...], "國語區": [...] }
-            const subjects = []; // 紀錄科目順序
-
-            rows.forEach(row => {
-                // 分割欄位 (簡單處理逗號)
-                const cols = row.split(','); 
-                if (cols.length < 3) return; 
-
-                const subj = cols[0].trim(); // 科目
-                const name = cols[1].trim(); // 遊戲名
-                const file = cols[2].trim(); // 連結
-                const icon = cols[3] ? cols[3].trim() : "🎮"; // 圖示
-
-                if (!subj || !name) return;
-
-                if (!data[subj]) {
-                    data[subj] = [];
-                    subjects.push(subj);
-                }
-                data[subj].push({ name, file, icon });
-            });
-
-            // 開始繪製網頁
-            app.innerHTML = ""; // 清除載入中文字
-            
-            if (subjects.length === 0) {
-                app.innerHTML = "<div class='loading'>試算表裡好像沒有資料喔？<br>請檢查是否已輸入並發布。</div>";
-                return;
-            }
-
-            subjects.forEach((subj, index) => {
-                const section = document.createElement('div');
-                // 輪流分配顏色樣式 color-0 ~ color-3
-                section.className = `subject-section color-${index % 4}`;
-                
-                const gridHtml = data[subj].map(g => `
-                    <a href="${g.file}" target="_blank" class="game-card">
-                        <span class="icon">${g.icon}</span>
-                        ${g.name}
-                    </a>
-                `).join('');
-
-                section.innerHTML = `
-                    <div class="subject-title">${subj}</div>
-                    <div class="games-grid">${gridHtml}</div>
-                `;
-                app.appendChild(section);
-            });
-
-        } catch (error) {
-            console.error(error);
-            app.innerHTML = `<div class="loading" style="color:red">⚠️ 讀取失敗<br>請檢查 index.html 裡的試算表連結是否正確<br>或是試算表是否已「發布到網路(CSV)」</div>`;
-        }
-    }
-
-    // 啟動讀取
-    loadGames();
+    // 這裡預留給未來的路由控制或全域設定
+    console.log("傑特佩小遊戲網 - 系統初始化...");
 </script>
 
 </body>
