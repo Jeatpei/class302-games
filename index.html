@@ -17,7 +17,6 @@
         body {
             font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0;
             background-color: var(--light); color: var(--dark);
-            /* 防止手機左右滑動 */
             overflow-x: hidden; 
         }
 
@@ -30,15 +29,15 @@
         h1 { margin: 0; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
 
-        /* 主選單容器 (Grid 佈局) */
+        /* 主選單容器 */
         .menu-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 兩欄 */
+            grid-template-columns: 1fr 1fr;
             gap: 15px; padding: 20px;
             max-width: 600px; margin: 0 auto;
         }
 
-        /* 四大區塊卡片 */
+        /* 卡片樣式 */
         .menu-card {
             background: white; border-radius: 20px; padding: 20px 10px;
             text-align: center; cursor: pointer; transition: transform 0.2s;
@@ -59,19 +58,20 @@
         .card-know { border-bottom: 5px solid var(--secondary); }
         .card-know .icon { color: var(--secondary); }
 
-        .card-adv { border-bottom: 5px solid var(--danger); grid-column: span 2; /* 橫跨兩欄 */ }
+        .card-adv { border-bottom: 5px solid var(--danger); grid-column: span 2; }
         .card-adv .icon { color: var(--danger); }
 
-        .card-upload { border-bottom: 5px solid var(--info); grid-column: span 2; background: #E3F2FD; }
-        .card-upload .icon { color: var(--info); }
+        /* 遊戲王區塊 (特別強調) */
+        .card-upload { border-bottom: 5px solid var(--info); grid-column: span 2; background: #E3F2FD; border: 2px solid #2196F3; }
+        .card-upload .icon { color: var(--info); animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         /* 底部資訊 */
         footer {
-            text-align: center; padding: 20px; color: #90a4ae; font-size: 0.8rem;
-            margin-top: 20px;
+            text-align: center; padding: 20px; color: #90a4ae; font-size: 0.8rem; margin-top: 20px;
         }
 
-        /* 模擬手機螢幕寬度 (桌機看的時候比較準) */
         @media (min-width: 600px) {
             body { background: #cfd8dc; }
             #app-frame {
@@ -108,7 +108,7 @@
             <div class="card-desc">收集道具．挑戰終點．獲得獎章</div>
         </a>
 
-        <a href="upload_zone.html" class="menu-card card-upload" onclick="alert('第四區：建置中...')">
+        <a href="jetpay_game_center.html" class="menu-card card-upload">
             <div class="icon">🚀</div>
             <div class="card-title">我是遊戲王 (上傳區)</div>
             <div class="card-desc">上傳你的 Code．爭奪點閱排行冠軍</div>
@@ -116,12 +116,12 @@
     </div>
 
     <div style="padding: 0 20px;">
-        <h3 style="margin-bottom: 10px; color: #546E7A;">🔥 本週熱門遊戲王</h3>
+        <h3 style="margin-bottom: 10px; color: #546E7A;">🔥 本週熱門快訊</h3>
         <div style="background: white; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <span style="font-size: 1.5rem;">🥇</span>
+            <span style="font-size: 1.5rem;">📢</span>
             <div>
-                <div style="font-weight: bold;">超級算術大戰</div>
-                <div style="font-size: 0.8rem; color: #888;">作者：四年二班 小明 | 點閱：1,205</div>
+                <div style="font-weight: bold;">系統公告</div>
+                <div style="font-size: 0.8rem; color: #888;">遊戲王競技場正式開放！快去上傳！</div>
             </div>
         </div>
     </div>
@@ -131,11 +131,6 @@
         &copy; 2025 傑特佩小遊戲網
     </footer>
 </div>
-
-<script>
-    // 這裡預留給未來的路由控制或全域設定
-    console.log("傑特佩小遊戲網 - 系統初始化...");
-</script>
 
 </body>
 </html>
