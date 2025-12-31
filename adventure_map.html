@@ -3,60 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：全科挑戰版 (V27)</title>
+    <title>傑特佩大冒險：時空穿越者 (V27.1)</title>
     <style>
         :root { --locked: #444; --unlocked: #29b6f6; --cleared: #fbc02d; }
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
 
-        /* 地圖視窗 */
-        #map-viewport { width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden; position: relative; scroll-behavior: smooth; padding-bottom: 80px; background: #111; }
-        
-        /* 背景圖 (含遮罩) */
-        .zone { position: absolute; width: 100%; height: 700px; left: 0; z-index: 0; background-size: cover; background-position: center; border-top: 5px solid rgba(0,0,0,0.5); box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.4); }
-        .zone-1 { top: 2800px; background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000&auto=format&fit=crop'); }
-        .zone-2 { top: 2100px; background-image: url('https://images.unsplash.com/photo-1509316709124-e333e8293633?q=80&w=1000&auto=format&fit=crop'); box-shadow: inset 0 0 0 1000px rgba(255, 152, 0, 0.2); }
-        .zone-3 { top: 1400px; background-image: url('https://images.unsplash.com/photo-1516975908413-5af25103bb9e?q=80&w=1000&auto=format&fit=crop'); box-shadow: inset 0 0 0 1000px rgba(0, 100, 255, 0.2); }
-        .zone-4 { top: 700px; background-image: url('https://images.unsplash.com/photo-1462331940025-496dfa712568?q=80&w=1000&auto=format&fit=crop'); box-shadow: inset 0 0 0 1000px rgba(255, 0, 0, 0.3); }
-        .zone-5 { top: 0px; background-image: url('https://images.unsplash.com/photo-1599692673087-6474156956b9?q=80&w=1000&auto=format&fit=crop'); }
+        /* === 🗺️ 地圖視窗 === */
+        #map-viewport {
+            width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden;
+            position: relative; scroll-behavior: smooth; padding-bottom: 80px; background: #000;
+        }
 
-        .zone-label { position: absolute; top: 30px; left: 30px; font-size: 2.2rem; font-weight: bold; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 10px rgba(0,0,0,0.8); }
+        /* === 🌍 五大世界背景 (電影級高畫質) === */
+        .zone {
+            position: absolute; width: 100%; height: 700px; left: 0; z-index: 0;
+            background-size: cover; background-position: center;
+            border-top: 5px solid rgba(0,0,0,0.5);
+            /* 加上遮罩讓文字更清楚 */
+            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.3);
+        }
         
+        /* World 1: 迷霧森林 */
+        .zone-1 { 
+            top: 2800px; 
+            background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1000&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 50, 0, 0.4); 
+        }
+        /* World 2: 烈日沙漠 */
+        .zone-2 { 
+            top: 2100px; 
+            background-image: url('https://images.unsplash.com/photo-1542401886-65d6c61db217?q=80&w=1000&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(255, 140, 0, 0.2); 
+        }
+        /* World 3: 極地冰原 */
+        .zone-3 { 
+            top: 1400px; 
+            background-image: url('https://images.unsplash.com/photo-1518182170546-0766ba6f6a56?q=80&w=1000&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 100, 255, 0.3); 
+        }
+        /* World 4: 熔岩火山 */
+        .zone-4 { 
+            top: 700px; 
+            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfa712568?q=80&w=1000&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.4); 
+        }
+        /* World 5: 機械城堡 */
+        .zone-5 { 
+            top: 0px; 
+            background-image: url('https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1000&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.6); 
+        }
+
+        .zone-label {
+            position: absolute; top: 30px; left: 30px; font-size: 2.2rem; font-weight: bold;
+            color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 3px;
+            text-shadow: 3px 3px 10px rgba(0,0,0,1); pointer-events: none;
+        }
+
         /* 關卡節點 */
-        .level-node { position: absolute; width: 60px; height: 60px; border-radius: 50%; background: var(--locked); border: 3px solid rgba(255,255,255,0.5); left: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.3rem; cursor: pointer; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.7); transition: 0.2s; backdrop-filter: blur(5px); }
-        .level-node.unlocked { background: var(--unlocked); animation: pulse 1.5s infinite; border-color: white; box-shadow: 0 0 20px var(--unlocked); }
+        .level-node {
+            position: absolute; width: 60px; height: 60px; border-radius: 50%;
+            background: var(--locked); border: 3px solid rgba(255,255,255,0.6); left: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.3rem; cursor: pointer; z-index: 10;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8); transition: 0.2s;
+            backdrop-filter: blur(5px);
+        }
+        .level-node.unlocked { background: var(--unlocked); animation: pulse 1.5s infinite; border-color: white; box-shadow: 0 0 25px var(--unlocked); }
         .level-node.cleared { background: var(--cleared); color: #333; border-color: #fff; }
         .level-node:active { transform: scale(0.9); }
-        
-        #path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 3500px; pointer-events: none; z-index: 5; }
-        path { fill: none; stroke: rgba(255,255,255,0.7); stroke-width: 6; stroke-dasharray: 10; stroke-linecap: round; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
 
-        /* UI 元件 */
+        /* 路徑線 */
+        #path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 3500px; pointer-events: none; z-index: 5; }
+        path { fill: none; stroke: rgba(255,255,255,0.8); stroke-width: 6; stroke-dasharray: 12; stroke-linecap: round; filter: drop-shadow(0 0 5px black); }
+
+        /* === UI 介面 === */
+        /* 分級選擇頁 */
         .intro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .grade-btn { width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; }
+        .grade-btn { width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 5px 0 rgba(0,0,0,0.5); }
+        .grade-btn:active { transform: translateY(5px); box-shadow: none; }
         .g-low { background: #4caf50; } .g-mid { background: #ff9800; } .g-high { background: #f44336; }
         
+        /* HUD */
         #hud { position: fixed; top: 0; left: 0; width: 100%; padding: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #333; }
         .status-box { font-size: 0.9rem; display: flex; gap: 12px; color: #fff; align-items: center; }
-        .item-icon { position: relative; font-size: 1.4rem; margin-right: 5px; cursor: pointer; } 
-        .item-count { position: absolute; bottom: -2px; right: -5px; background: #e74c3c; font-size: 0.7rem; padding: 2px 5px; border-radius: 10px; border:1px solid white; }
+        .item-icon { position: relative; font-size: 1.5rem; margin-right: 5px; cursor: pointer; transition: 0.2s; } 
+        .item-icon:hover { transform: scale(1.1); }
+        .item-count { position: absolute; bottom: -2px; right: -5px; background: #e74c3c; font-size: 0.7rem; padding: 2px 5px; border-radius: 10px; border:1px solid white; font-weight: bold; }
         .grade-badge { padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
+        /* 視窗通用 */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 200; flex-direction: column; backdrop-filter: blur(5px); }
         .modal.active { display: flex; animation: fadeIn 0.3s; } @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         
-        .game-board { background: #eee; color: #333; width: 90%; max-width: 450px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .game-content { min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; margin: 20px 0; color:#2c3e50; }
-        .subj-tag { font-size: 0.9rem; background: #333; color: white; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
+        /* 遊戲面板 */
+        .game-board { background: #f5f5f5; color: #333; width: 90%; max-width: 450px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
+        .game-content { min-height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; margin: 20px 0; color:#2c3e50; }
+        .subj-tag { font-size: 0.9rem; background: #2c3e50; color: white; padding: 3px 10px; border-radius: 5px; margin-bottom: 10px; position: absolute; top: 20px; left: 20px; }
         
         .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .opt-btn { padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-size: 1.3rem; cursor: pointer; font-weight:bold; box-shadow: 0 4px 0 #2980b9; transition:0.1s; } 
+        .opt-btn { padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-size: 1.2rem; cursor: pointer; font-weight:bold; box-shadow: 0 4px 0 #2980b9; transition:0.1s; } 
         .opt-btn:active{transform:translateY(4px); box-shadow:none;}
 
+        /* 排行榜 */
         .rank-tabs { display: flex; gap: 10px; margin-bottom: 15px; background:#ddd; padding:5px; border-radius:10px; }
         .rt-btn { flex: 1; padding: 10px; background: transparent; border: none; cursor: pointer; font-weight: bold; border-radius:8px; color:#777; transition:0.2s; }
         .rt-btn.active { background: #fff; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .rank-row { display: flex; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #ddd; font-size: 1rem; }
-        .rank-row:first-child { color: #d35400; font-weight: bold; font-size: 1.2rem; }
+        .rank-row { display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #ddd; font-size: 1rem; }
+        .rank-row:nth-child(1) { color: #d35400; font-weight: bold; font-size: 1.1rem; border: 2px solid #f39c12; background: #fff8e1; border-radius: 8px; margin-bottom: 5px;}
 
         @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(41, 182, 246, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0); } }
     </style>
@@ -64,8 +118,8 @@
 <body>
 
 <div class="intro-modal" id="intro-screen">
-    <h1 style="color:#fff; margin-bottom:10px; text-shadow:0 2px 10px rgba(0,0,0,0.5);">🚀 傑特佩大冒險</h1>
-    <p style="color:#aaa; margin-bottom:30px;">請選擇你的挑戰等級</p>
+    <h1 style="color:#fff; margin-bottom:10px; text-shadow:0 2px 10px rgba(0,0,0,0.8);">🚀 傑特佩大冒險</h1>
+    <p style="color:#aaa; margin-bottom:30px;">全科挑戰．時空穿越</p>
     <button class="grade-btn g-low" onclick="setGrade('low')">👶 低年級 (1-2)</button>
     <button class="grade-btn g-mid" onclick="setGrade('mid')">👦 中年級 (3-4)</button>
     <button class="grade-btn g-high" onclick="setGrade('high')">🧑‍🎓 高年級 (5-6)</button>
@@ -77,76 +131,47 @@
         <span>⏱️ <span id="total-time">0</span>s</span>
     </div>
     <div class="status-box">
-        <div class="item-icon" onclick="useItem('time')">⏳<span class="item-count" id="c-time">0</span></div>
-        <div class="item-icon" onclick="useItem('shield')">🛡️<span class="item-count" id="c-shield">0</span></div>
-        <div class="item-icon" onclick="useItem('key')">🔑<span class="item-count" id="c-key">0</span></div>
+        <div class="item-icon" onclick="useItem('time')" title="時間-10s">⏳<span class="item-count" id="c-time">0</span></div>
+        <div class="item-icon" onclick="useItem('shield')" title="抵擋一次錯誤">🛡️<span class="item-count" id="c-shield">0</span></div>
+        <div class="item-icon" onclick="useItem('key')" title="跳過此關">🔑<span class="item-count" id="c-key">0</span></div>
     </div>
 </div>
 
 <div id="map-viewport">
-   /* === 🌍 五大世界：視覺強制更新版 (V27.1) === */
-        
-        /* World 1: 迷霧森林 (深綠色系 - 巨木與霧氣) */
-        .zone-1 { 
-            top: 2800px; 
-            background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 50, 0, 0.3); /* 加強綠色氛圍 */
-        }
-        
-        /* World 2: 烈日沙漠 (金黃色系 - 沙丘) */
-        .zone-2 { 
-            top: 2100px; 
-            background-image: url('https://images.unsplash.com/photo-1542401886-65d6c61db217?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(255, 140, 0, 0.2); /* 加強橘光 */
-        }
-        
-        /* World 3: 極地冰原 (冰藍色系 - 冰洞) */
-        .zone-3 { 
-            top: 1400px; 
-            background-image: url('https://images.unsplash.com/photo-1518182170546-0766ba6f6a56?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 100, 255, 0.3); /* 加強藍冷光 */
-        }
-        
-        /* World 4: 熔岩火山 (暗紅色系 - 岩漿特寫) */
-        .zone-4 { 
-            top: 700px; 
-            background-image: url('https://images.unsplash.com/photo-1506543730-f3a1d9b3d3d8?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.4); /* 加強紅黑壓迫感 */
-        }
-        
-        /* World 5: 機械城堡 (金屬灰系 - 哥德式建築) */
-        .zone-5 { 
-            top: 0px; 
-            background-image: url('https://images.unsplash.com/photo-1533154683836-6b72027c5083?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5); /* 加強暗黑金屬感 */
-        }
+    <div class="zone zone-5"><div class="zone-label">World 5: 機械城堡</div></div>
+    <div class="zone zone-4"><div class="zone-label">World 4: 熔岩火山</div></div>
+    <div class="zone zone-3"><div class="zone-label">World 3: 極地冰原</div></div>
+    <div class="zone zone-2"><div class="zone-label">World 2: 烈日沙漠</div></div>
+    <div class="zone zone-1"><div class="zone-label">World 1: 迷霧森林</div></div>
+    <svg id="path-svg"><path id="map-path" d=""/></svg>
+    <div id="nodes-container"></div>
 </div>
 
 <div class="modal" id="game-modal">
     <div class="game-board">
-        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem; margin-bottom:5px;">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem; margin-bottom:5px; padding-left: 50px;">
             <span id="lv-title">Level 1</span>
             <span id="q-timer" style="color:#e74c3c;">30s</span>
         </div>
-        <div style="height:8px; background:#ddd; border-radius:4px; overflow:hidden;"><div id="t-bar" style="height:100%; width:100%; background:#e74c3c; transition:width 1s linear;"></div></div>
+        <div style="height:8px; background:#ddd; border-radius:4px; overflow:hidden; margin-bottom:10px;"><div id="t-bar" style="height:100%; width:100%; background:#e74c3c; transition:width 1s linear;"></div></div>
         
         <div class="game-content">
-            <div id="subj-tag" class="subj-tag">數學</div>
-            <div id="q-content">?</div>
+            <div id="subj-tag" class="subj-tag">科目</div>
+            <div id="q-content">題目載入中...</div>
         </div>
         
         <div class="grid-options" id="q-opts"></div>
         <div style="margin-top:25px; display:flex; justify-content:center; gap:15px; border-top:2px solid #eee; padding-top:20px;">
-            <div class="item-icon" onclick="useItem('time')" style="color:#333; font-size:1.8rem;">⏳<span class="item-count" id="g-c-time">0</span></div>
-            <div class="item-icon" onclick="useItem('shield')" style="color:#333; font-size:1.8rem;">🛡️<span class="item-count" id="g-c-shield">0</span></div>
-            <div class="item-icon" onclick="useItem('key')" style="color:#333; font-size:1.8rem;">🔑<span class="item-count" id="g-c-key">0</span></div>
+            <div class="item-icon" onclick="useItem('time')" style="color:#333;">⏳<span class="item-count" id="g-c-time">0</span></div>
+            <div class="item-icon" onclick="useItem('shield')" style="color:#333;">🛡️<span class="item-count" id="g-c-shield">0</span></div>
+            <div class="item-icon" onclick="useItem('key')" style="color:#333;">🔑<span class="item-count" id="g-c-key">0</span></div>
         </div>
     </div>
 </div>
 
 <div class="modal" id="win-modal">
     <div class="game-board">
-        <h1 style="color:#27ae60;">🏆 挑戰成功！</h1>
+        <h1 style="color:#27ae60; margin-top:0;">🏆 挑戰成功！</h1>
         <p>等級：<span id="final-grade" style="font-weight:bold;"></span></p>
         <p>總耗時：<span id="final-time" style="font-size:2.5rem; color:#e74c3c; font-weight:bold;"></span> 秒</p>
         <input type="text" id="input-name" placeholder="輸入你的名字 (例: 401小明)" style="padding:12px; font-size:1.1rem; width:90%; border:2px solid #ddd; border-radius:8px; text-align:center;">
@@ -157,7 +182,7 @@
 </div>
 
 <div class="modal" id="rank-modal">
-    <div class="game-board" style="max-height:80vh; overflow-y:auto; padding:0;">
+    <div class="game-board" style="max-height:80vh; overflow-y:auto; padding:0; background:#f9f9f9;">
         <div style="padding:20px; background:#2c3e50; color:white; border-radius:20px 20px 0 0;">
             <h2 style="margin:0;">🏆 冒險英雄榜</h2>
         </div>
@@ -183,37 +208,49 @@
 </div>
 
 <script>
-    // 🔴 🔴 🔴 請將此處換成您 "重新部署" 後的 GAS 網址 (V3.1) 🔴 🔴 🔴
+    // 🔴 🔴 🔴 請在下方貼上您 GAS (Apps Script) 的網址 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
     const TOTAL_LEVELS = 30;
     let state = { grade: 'mid', level: 1, items: { time: 2, shield: 2, key: 1 }, totalTime: 0, timer: null, inGame: false, shieldOn: false };
 
-    // --- 題庫資料 (全科目) ---
+    // 全科題庫 (國/英/數/社/自) - 包含三種難度
     const DB = {
         low: [
-            {t:"數學", q:"5 + 3 = ?", a:"8", o:["8","7","9","6"]},
-            {t:"數學", q:"10 - 4 = ?", a:"6", o:["6","5","4","7"]},
-            {t:"生活", q:"紅燈要？", a:"停", o:["停","走","跳","跑"]},
-            {t:"國語", q:"「天」的部首？", a:"大", o:["大","一","二","人"]},
-            {t:"自然", q:"太陽從哪邊升起？", a:"東邊", o:["東邊","西邊","北邊","南邊"]},
-            {t:"英文", q:"Apple 是？", a:"蘋果", o:["蘋果","香蕉","橘子","芭樂"]}
+            {t:"數學", q:"5 + 8 = ?", a:"13", o:["13","12","14","15"]},
+            {t:"數學", q:"20 - 7 = ?", a:"13", o:["13","12","11","10"]},
+            {t:"數學", q:"3個5是多少?", a:"15", o:["15","10","20","12"]},
+            {t:"生活", q:"紅燈代表什麼?", a:"停止", o:["停止","前進","跳舞","唱歌"]},
+            {t:"生活", q:"過馬路要走?", a:"斑馬線", o:["斑馬線","快車道","屋頂","水溝"]},
+            {t:"國語", q:"「早」的部首?", a:"日", o:["日","十","口","草"]},
+            {t:"國語", q:"「花」的部首?", a:"艸", o:["艸","化","人","木"]},
+            {t:"英文", q:"Red 是什麼色?", a:"紅色", o:["紅色","藍色","綠色","黃色"]},
+            {t:"英文", q:"Cat 是什麼?", a:"貓", o:["貓","狗","豬","鳥"]},
+            {t:"自然", q:"太陽從哪邊出來?", a:"東邊", o:["東邊","西邊","北邊","南邊"]}
         ],
         mid: [
-            {t:"數學", q:"7 x 8 = ?", a:"56", o:["56","48","64","54"]},
-            {t:"社會", q:"我們住在？", a:"台灣", o:["台灣","美國","日本","月球"]},
-            {t:"自然", q:"磁鐵吸什麼？", a:"鐵釘", o:["鐵釘","木頭","塑膠","紙"]},
-            {t:"英文", q:"Dog 是？", a:"狗", o:["狗","貓","豬","鳥"]},
-            {t:"國語", q:"成語：一__驚人", a:"鳴", o:["鳴","名","民","明"]},
-            {t:"社會", q:"寫信要去？", a:"郵局", o:["郵局","警察局","消防隊","銀行"]}
+            {t:"數學", q:"8 x 7 = ?", a:"56", o:["56","48","64","54"]},
+            {t:"數學", q:"45 ÷ 5 = ?", a:"9", o:["9","8","7","6"]},
+            {t:"數學", q:"1公里 = ? 公尺", a:"1000", o:["1000","100","10","10000"]},
+            {t:"社會", q:"我們住在哪裡?", a:"台灣", o:["台灣","美國","日本","法國"]},
+            {t:"社會", q:"端午節吃什麼?", a:"粽子", o:["粽子","月餅","湯圓","蛋糕"]},
+            {t:"國語", q:"成語:一__驚人", a:"鳴", o:["鳴","名","民","明"]},
+            {t:"國語", q:"守株待__?", a:"兔", o:["兔","虎","豬","龍"]},
+            {t:"自然", q:"磁鐵能吸什麼?", a:"鐵釘", o:["鐵釘","塑膠","木頭","紙"]},
+            {t:"自然", q:"青蛙小時候是?", a:"蝌蚪", o:["蝌蚪","毛毛蟲","小魚","雞蛋"]},
+            {t:"英文", q:"Thank you 是?", a:"謝謝", o:["謝謝","對不起","再見","你好"]}
         ],
         high: [
             {t:"數學", q:"25 x 4 + 10 = ?", a:"110", o:["110","100","90","120"]},
-            {t:"社會", q:"台灣最高的山？", a:"玉山", o:["玉山","阿里山","陽明山","雪山"]},
-            {t:"自然", q:"植物行什麼作用？", a:"光合作用", o:["光合作用","呼吸作用","消化作用","發酵作用"]},
-            {t:"英文", q:"Beautiful 是？", a:"美麗的", o:["美麗的","醜陋的","生氣的","快樂的"]},
-            {t:"國語", q:"哪一個字有錯？", a:"固執己見", o:["固執己見","固執己見(無錯)","固執已見","故執己見"]}, // 修正題目邏輯
-            {t:"社會", q:"鄭成功趕走誰？", a:"荷蘭人", o:["荷蘭人","西班牙人","日本人","法國人"]}
+            {t:"數學", q:"0.5 + 0.8 = ?", a:"1.3", o:["1.3","1.2","0.13","13"]},
+            {t:"數學", q:"三角形內角和?", a:"180度", o:["180度","360度","90度","100度"]},
+            {t:"社會", q:"台灣最高的山?", a:"玉山", o:["玉山","阿里山","雪山","陽明山"]},
+            {t:"社會", q:"哪個是直轄市?", a:"高雄市", o:["高雄市","基隆市","新竹市","嘉義市"]},
+            {t:"自然", q:"植物製造養分?", a:"光合作用", o:["光合作用","呼吸作用","蒸散作用","消化作用"]},
+            {t:"自然", q:"月亮繞著誰轉?", a:"地球", o:["地球","太陽","火星","金星"]},
+            {t:"國語", q:"哪個字有錯?", a:"再接再勵", o:["再接再勵","再接再厲","鍥而不捨","堅持到底"]}, // 厲才對
+            {t:"英文", q:"Library 是?", a:"圖書館", o:["圖書館","學校","公園","醫院"]},
+            {t:"英文", q:"Delicious 是?", a:"美味的", o:["美味的","危險的","生氣的","快樂的"]}
         ]
     };
 
@@ -265,15 +302,13 @@
         const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
         let pool = DB[state.grade] || DB['mid'];
         
-        // 數學題動態生成 (每3關出現一次固定數學，其他隨機抽題庫)
         let qData;
         if(lv % 3 === 0) {
-            // 動態數學題
+            // 每3關強制數學 (增加運算練習)
              if(state.grade === 'low') { let n1=r(1,10), n2=r(1,9); qData={t:"數學", q:`${n1} + ${n2} = ?`, a:n1+n2, o:[n1+n2, n1+n2+1, n1+n2-1, n1+n2+2]}; }
              else if(state.grade === 'mid') { let n1=r(2,9), n2=r(2,9); qData={t:"數學", q:`${n1} × ${n2} = ?`, a:n1*n2, o:[n1*n2, n1*n2+10, n1*n2-5, n1*n2+1]}; }
              else { let n1=r(11,20), n2=r(2,9); qData={t:"數學", q:`${n1} × ${n2} = ?`, a:n1*n2, o:[n1*n2, n1*n2+10, n1*n2-10, n1*n2+2]}; }
         } else {
-            // 從題庫隨機抽
             qData = pool[Math.floor(Math.random() * pool.length)];
         }
 
@@ -281,7 +316,6 @@
         document.getElementById('q-content').innerText = qData.q;
         
         const optsDiv = document.getElementById('q-opts'); optsDiv.innerHTML = '';
-        // 處理選項 (若是字串陣列直接用，若是動態生成的數字則直接用)
         let opts = qData.o.map(String); 
         opts.sort(()=>0.5-Math.random()).forEach(o => {
             const b = document.createElement('button'); b.className='opt-btn'; b.innerText=o;
@@ -293,7 +327,7 @@
         if(!state.inGame) return;
         if(String(ans) === String(correct)) { winLevel(); }
         else {
-            if(state.shieldOn) { alert("🛡️ 護盾生效！"); state.shieldOn=false; }
+            if(state.shieldOn) { alert("🛡️ 護盾生效！抵擋一次錯誤！"); state.shieldOn=false; }
             else { alert("❌ 答錯 +5秒！"); state.totalTime+=5; }
             updateHUD();
         }
@@ -304,14 +338,14 @@
         document.getElementById('game-modal').classList.remove('active');
         if(state.level % 5 === 0) {
             let gift = ['time','shield','key'][Math.floor(Math.random()*3)];
-            state.items[gift]++; alert(`🎁 獲得道具：${gift}`);
+            state.items[gift]++; alert(`🎁 通過 BOSS 關卡！獲得道具：${gift === 'time'?'沙漏':(gift==='shield'?'護盾':'鑰匙')}`);
         }
         if(state.level < TOTAL_LEVELS) { state.level++; saveProgress(state.grade); renderMap(); setTimeout(() => { document.querySelector('.level-node.unlocked').scrollIntoView({block:"center",behavior:"smooth"}); }, 300); }
         else { gameWin(); }
         updateHUD();
     }
 
-    function gameOver() { clearInterval(state.timer); state.inGame=false; alert("💀 時間到！"); document.getElementById('game-modal').classList.remove('active'); }
+    function gameOver() { clearInterval(state.timer); state.inGame=false; alert("💀 時間到！挑戰失敗！"); document.getElementById('game-modal').classList.remove('active'); }
     function gameWin() { document.getElementById('win-modal').classList.add('active'); document.getElementById('final-time').innerText = state.totalTime; document.getElementById('final-grade').innerText = document.getElementById('grade-display').innerText; }
 
     function useItem(type) {
@@ -333,9 +367,9 @@
         document.getElementById('g-c-time').innerText = state.items.time; document.getElementById('g-c-shield').innerText = state.items.shield; document.getElementById('g-c-key').innerText = state.items.key;
     }
 
-    function saveProgress(g) { localStorage.setItem('adv_save_v27_' + g, JSON.stringify({ level: state.level, items: state.items, time: state.totalTime })); }
+    function saveProgress(g) { localStorage.setItem('adv_save_v27_1_' + g, JSON.stringify({ level: state.level, items: state.items, time: state.totalTime })); }
     function loadProgress(g) {
-        const s = localStorage.getItem('adv_save_v27_' + g);
+        const s = localStorage.getItem('adv_save_v27_1_' + g);
         if(s) { const d = JSON.parse(s); state.level = d.level; state.items = d.items; state.totalTime = d.time; }
         else { state.level = 1; state.items = {time:2,shield:2,key:1}; state.totalTime = 0; }
     }
@@ -352,12 +386,12 @@
         if(btn) { document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
         const div = document.getElementById('rank-list'); div.innerHTML = '<div style="text-align:center;">載入中...</div>';
         fetch(API_URL + `?action=getRank&grade=${grade}`).then(r=>r.json()).then(d=>{
-            div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄</div>';
+            div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄，快來搶第一！</div>';
             d.slice(0,10).forEach((row,i) => {
                 let medal = i===0?'🥇':(i===1?'🥈':(i===2?'🥉':(i+1+'.')));
                 div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.time}s</span></div>`;
             });
-        }).catch(e=>{ div.innerHTML = "載入失敗，請確認 GAS 版本"; });
+        }).catch(e=>{ div.innerHTML = "載入失敗"; });
     }
 </script>
 </body>
