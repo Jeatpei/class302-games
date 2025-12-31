@@ -3,90 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：時空穿越者</title>
+    <title>傑特佩大冒險：時空穿越者 V25</title>
     <style>
-        :root { --bg-map: #81c784; --path: #fff; --locked: #555; --cleared: #ffca28; }
-        body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #333; color: white; user-select: none; overflow: hidden; }
+        :root { --locked: #444; --unlocked: #29b6f6; --cleared: #fbc02d; }
+        body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #222; color: white; user-select: none; overflow: hidden; }
 
-        /* === 🗺️ 地圖區 (可捲動) === */
+        /* === 🗺️ 地圖視覺優化 (解決問題1) === */
         #map-viewport {
-            width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden;
-            background: linear-gradient(180deg, #2c3e50 0%, #4a148c 30%, #006064 60%, #1b5e20 100%);
-            position: relative; scroll-behavior: smooth; padding-bottom: 80px; /* 避開導航 */
+            width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden; position: relative; scroll-behavior: smooth;
+            padding-bottom: 80px;
         }
+
+        /* 五大世界背景紋理 */
+        .zone { position: absolute; width: 100%; height: 700px; left: 0; z-index: 0; border-top: 5px solid rgba(0,0,0,0.2); }
         
-        .world-label {
-            position: absolute; width: 100%; text-align: center; font-size: 3rem; font-weight: bold;
-            opacity: 0.3; color: white; pointer-events: none; z-index: 0; text-transform: uppercase;
+        /* World 1: 迷霧森林 (綠色 + 圓點樹葉) */
+        .zone-1 { top: 2800px; background: #2e7d32; background-image: radial-gradient(#4caf50 15%, transparent 16%); background-size: 30px 30px; }
+        /* World 2: 烈日沙漠 (黃色 + 波紋) */
+        .zone-2 { top: 2100px; background: #f57f17; background-image: repeating-linear-gradient(45deg, #ffb74d 0, #ffb74d 10px, #f57f17 10px, #f57f17 20px); }
+        /* World 3: 極地冰原 (藍色 + 晶體) */
+        .zone-3 { top: 1400px; background: #0277bd; background-image: linear-gradient(30deg, #4fc3f7 12%, transparent 12.5%, transparent 87%, #4fc3f7 87.5%, #4fc3f7), linear-gradient(150deg, #4fc3f7 12%, transparent 12.5%, transparent 87%, #4fc3f7 87.5%, #4fc3f7); background-size: 40px 70px; }
+        /* World 4: 熔岩火山 (深紅 + 裂痕) */
+        .zone-4 { top: 700px; background: #b71c1c; background-image: linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.3) 50%); background-size: 50px 50px; }
+        /* World 5: 機械城堡 (灰色 + 網格) */
+        .zone-5 { top: 0px; background: #37474f; background-image: linear-gradient(#546e7a 1px, transparent 1px), linear-gradient(90deg, #546e7a 1px, transparent 1px); background-size: 40px 40px; }
+
+        .zone-label {
+            position: absolute; top: 20px; left: 20px; font-size: 2.5rem; font-weight: bold;
+            color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 5px;
         }
 
         /* 關卡節點 */
         .level-node {
-            position: absolute; width: 50px; height: 50px; border-radius: 50%;
+            position: absolute; width: 55px; height: 55px; border-radius: 50%;
             background: var(--locked); border: 4px solid #fff; left: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; font-size: 1.2rem; cursor: pointer; z-index: 10;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s;
         }
-        .level-node.unlocked { background: #03a9f4; animation: pulse 2s infinite; }
-        .level-node.cleared { background: var(--cleared); color: #333; border-color: #ff6f00; }
-        .level-node:hover { transform: scale(1.2); }
+        .level-node.unlocked { background: var(--unlocked); animation: pulse 1.5s infinite; border-color: white; }
+        .level-node.cleared { background: var(--cleared); color: #333; border-color: #fffde7; }
+        
+        #path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 3500px; pointer-events: none; z-index: 5; }
+        path { fill: none; stroke: rgba(255,255,255,0.6); stroke-width: 8; stroke-dasharray: 15; stroke-linecap: round; }
 
-        /* 連接線 (SVG) */
-        #path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 3500px; pointer-events: none; z-index: 1; }
-        path { fill: none; stroke: rgba(255,255,255,0.3); stroke-width: 8; stroke-dasharray: 10; }
+        /* === 初始選擇分級視窗 (解決問題3) === */
+        .intro-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #222;
+            z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .grade-btn {
+            width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px;
+            font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s;
+        }
+        .g-low { background: #4caf50; box-shadow: 0 5px 0 #2e7d32; }
+        .g-mid { background: #ff9800; box-shadow: 0 5px 0 #e65100; }
+        .g-high { background: #f44336; box-shadow: 0 5px 0 #c62828; }
+        .grade-btn:active { transform: translateY(5px); box-shadow: none; }
 
-        /* === 🎒 HUD 抬頭顯示器 === */
+        /* === HUD & Game UI === */
         #hud {
             position: fixed; top: 0; left: 0; width: 100%; padding: 10px;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100;
             display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
         }
-        .status-box { font-size: 0.9rem; display: flex; gap: 15px; }
-        .item-icon { font-size: 1.2rem; cursor: pointer; position: relative; }
-        .item-count { position: absolute; bottom: -5px; right: -5px; background: red; font-size: 0.7rem; padding: 1px 4px; border-radius: 10px; }
+        .status-box { font-size: 0.9rem; display: flex; gap: 10px; color: #fff; }
+        .item-icon { position: relative; font-size: 1.2rem; margin-right: 5px; cursor: pointer; }
+        .item-count { position: absolute; bottom: -5px; right: -5px; background: red; font-size: 0.6rem; padding: 1px 4px; border-radius: 10px; }
+        .grade-badge { padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
 
-        /* === ⚔️ 遊戲戰鬥視窗 (Modal) === */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
-            display: none; justify-content: center; align-items: center; z-index: 200; flex-direction: column;
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 200; flex-direction: column; }
         .modal.active { display: flex; }
-        
-        .game-board {
-            background: white; color: #333; width: 90%; max-width: 500px; border-radius: 15px;
-            padding: 20px; text-align: center; position: relative; box-shadow: 0 0 50px rgba(255,255,255,0.2);
-        }
-        .game-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; }
-        .timer-bar { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 20px; }
-        .timer-fill { height: 100%; background: #e74c3c; width: 100%; transition: width 1s linear; }
-        
-        .game-content { min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; }
-        
-        /* 遊戲類型樣式 */
-        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 20px; }
-        .g-btn { padding: 15px; border: none; background: #2196f3; color: white; font-size: 1.2rem; border-radius: 10px; cursor: pointer; }
-        .g-btn:active { transform: scale(0.95); }
+        .game-board { background: white; color: #333; width: 90%; max-width: 450px; border-radius: 15px; padding: 20px; text-align: center; }
+        .game-content { min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; margin: 20px 0; }
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .opt-btn { padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-size: 1.2rem; cursor: pointer; }
 
-        /* 道具使用欄 */
-        .power-ups { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-        .p-btn { background: #333; color: white; border: 1px solid #555; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer; opacity: 0.5; }
-        .p-btn.has-item { opacity: 1; background: #ff9800; border-color: #e65100; }
+        /* 排行榜分頁 */
+        .rank-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .rt-btn { flex: 1; padding: 8px; background: #eee; border: none; cursor: pointer; font-weight: bold; }
+        .rt-btn.active { background: #333; color: white; }
+        .rank-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .rank-row:first-child { color: #d35400; font-weight: bold; font-size: 1.1rem; }
 
-        /* 排行榜 */
-        #rank-board { width: 90%; max-width: 400px; background: #fff; color: #333; border-radius: 10px; padding: 20px; max-height: 70vh; overflow-y: auto; }
-        .rank-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
-        .rank-row:nth-child(1) { color: #d35400; font-weight: bold; font-size: 1.1rem; }
-
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(3, 169, 244, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(3, 169, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(3, 169, 244, 0); } }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(41, 182, 246, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0); } }
     </style>
 </head>
 <body>
 
-<div id="hud">
+<div class="intro-modal" id="intro-screen">
+    <h1 style="color:#fff; margin-bottom:30px;">🚀 請選擇挑戰等級</h1>
+    <button class="grade-btn g-low" onclick="setGrade('low')">👶 低年級 (1-2)</button>
+    <button class="grade-btn g-mid" onclick="setGrade('mid')">👦 中年級 (3-4)</button>
+    <button class="grade-btn g-high" onclick="setGrade('high')">🧑‍🎓 高年級 (5-6)</button>
+</div>
+
+<div id="hud" style="display:none;">
     <div class="status-box">
-        <span>👤 <span id="p-name">未登入</span></span>
-        <span>🕒 總時長: <span id="total-time">0</span>s</span>
+        <span id="grade-display" class="grade-badge"></span>
+        <span>⏱️ <span id="total-time">0</span>s</span>
     </div>
     <div class="status-box">
         <div class="item-icon" onclick="useItem('time')">⏳<span class="item-count" id="c-time">0</span></div>
@@ -96,338 +111,307 @@
 </div>
 
 <div id="map-viewport">
-    <div class="world-label" style="top: 3200px;">World 1: 迷霧森林</div>
-    <div class="world-label" style="top: 2400px;">World 2: 烈日沙漠</div>
-    <div class="world-label" style="top: 1600px;">World 3: 極地冰原</div>
-    <div class="world-label" style="top: 800px;">World 4: 熔岩火山</div>
-    <div class="world-label" style="top: 100px;">World 5: 機械城堡</div>
+    <div class="zone zone-5"><div class="zone-label">World 5: 機械城堡</div></div>
+    <div class="zone zone-4"><div class="zone-label">World 4: 熔岩火山</div></div>
+    <div class="zone zone-3"><div class="zone-label">World 3: 極地冰原</div></div>
+    <div class="zone zone-2"><div class="zone-label">World 2: 烈日沙漠</div></div>
+    <div class="zone zone-1"><div class="zone-label">World 1: 迷霧森林</div></div>
     <svg id="path-svg"><path id="map-path" d=""/></svg>
     <div id="nodes-container"></div>
 </div>
 
 <div class="modal" id="game-modal">
     <div class="game-board">
-        <div class="game-header">
-            <span id="level-title">Level 1</span>
-            <span id="q-timer">30s</span>
+        <div style="display:flex; justify-content:space-between; font-weight:bold;">
+            <span id="lv-title">Level 1</span>
+            <span id="q-timer" style="color:red;">30s</span>
         </div>
-        <div class="timer-bar"><div class="timer-fill" id="t-fill"></div></div>
-        
-        <div class="game-content" id="g-content">
-            題目載入中...
-        </div>
-        <div class="grid-options" id="g-opts"></div>
-
-        <div class="power-ups">
-            <button class="p-btn" id="btn-time" onclick="triggerPower('time')">⏳ 時間+10s</button>
-            <button class="p-btn" id="btn-shield" onclick="triggerPower('shield')">🛡️ 免死盾</button>
-            <button class="p-btn" id="btn-key" onclick="triggerPower('key')">🔑 跳關</button>
+        <div style="height:5px; background:#eee; margin:10px 0;"><div id="t-bar" style="height:100%; width:100%; background:red;"></div></div>
+        <div class="game-content" id="q-content">?</div>
+        <div class="grid-options" id="q-opts"></div>
+        <div style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
+            <button onclick="useItem('time')" style="padding:5px 10px;">⏳</button>
+            <button onclick="useItem('shield')" style="padding:5px 10px;">🛡️</button>
+            <button onclick="useItem('key')" style="padding:5px 10px;">🔑</button>
         </div>
     </div>
 </div>
 
 <div class="modal" id="win-modal">
     <div class="game-board">
-        <h1>🏆 恭喜通關！</h1>
-        <p>你的冒險總時長：<span id="final-time" style="font-size:2rem; color:red;"></span> 秒</p>
-        <p>太強了！請輸入名字上傳排行榜：</p>
-        <input type="text" id="input-name" placeholder="例如：402 小明" style="padding:10px; font-size:1rem;">
+        <h1>🏆 挑戰成功！</h1>
+        <p>等級：<span id="final-grade"></span></p>
+        <p>總耗時：<span id="final-time" style="font-size:2rem; color:red;"></span> 秒</p>
+        <input type="text" id="input-name" placeholder="輸入你的名字" style="padding:10px; font-size:1.2rem; width:80%;">
         <br><br>
-        <button class="g-btn" onclick="submitScore()">上傳成績</button>
-        <button class="g-btn" style="background:#555;" onclick="closeWin()">稍後再傳</button>
+        <button class="opt-btn" onclick="submitScore()">上傳英雄榜</button>
+        <button class="opt-btn" style="background:#777; margin-top:10px;" onclick="location.reload()">回首頁</button>
     </div>
 </div>
 
 <div class="modal" id="rank-modal">
-    <div id="rank-board">
-        <h2 style="text-align:center;">🏆 傳說冒險家 🏆</h2>
-        <div id="rank-list">載入中...</div>
-        <button class="g-btn" style="width:100%; margin-top:20px;" onclick="closeRank()">關閉</button>
+    <div class="game-board" style="max-height:80vh; overflow-y:auto;">
+        <h2>🏆 英雄榜</h2>
+        <div class="rank-tabs">
+            <button class="rt-btn active" onclick="loadRank('low', this)">低年級</button>
+            <button class="rt-btn" onclick="loadRank('mid', this)">中年級</button>
+            <button class="rt-btn" onclick="loadRank('high', this)">高年級</button>
+        </div>
+        <div id="rank-list" style="text-align:left;">載入中...</div>
+        <button class="opt-btn" style="background:#555; margin-top:20px; font-size:1rem; padding:10px;" onclick="document.getElementById('rank-modal').classList.remove('active')">關閉</button>
     </div>
 </div>
 
 <style> body { padding-bottom: 70px !important; } #jetpay-navbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #ddd; display: flex; justify-content: space-around; align-items: center; z-index: 9999; } .nav-item { text-decoration: none; color: #555; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; } .nav-icon { font-size: 1.5rem; } </style>
 <div id="jetpay-navbar">
     <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span>首頁</span></a>
-    <a href="adventure_map.html" class="nav-item" onclick="showRank()"><span class="nav-icon">🏆</span><span>排行</span></a>
+    <a href="#" class="nav-item" onclick="openRank()"><span class="nav-icon">🏆</span><span>排行</span></a>
 </div>
 
 <script>
-    // 🔴 設定區：請填入您的 GAS 網址
+    // 🔴 🔴 🔴 記得換 GAS 網址 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
-    // 遊戲狀態
     const TOTAL_LEVELS = 30;
     let state = {
+        grade: 'mid', // 預設
         level: 1,
-        items: { time: 1, shield: 1, key: 0 }, // 初始送一些道具
+        items: { time: 1, shield: 1, key: 0 },
         totalTime: 0,
-        gameTimer: null,
-        levelTime: 0,
+        timer: null,
         inGame: false,
-        shieldActive: false
+        shieldOn: false
     };
 
-    // 初始化
-    window.onload = function() {
-        loadProgress();
+    // 1. 設定年級
+    function setGrade(g) {
+        state.grade = g;
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('hud').style.display = 'flex';
+        
+        // 設定徽章顏色
+        const badge = document.getElementById('grade-display');
+        const map = {'low':'👶 低年級','mid':'👦 中年級','high':'🧑‍🎓 高年級'};
+        const color = {'low':'#4caf50','mid':'#ff9800','high':'#f44336'};
+        badge.innerText = map[g];
+        badge.style.background = color[g];
+
+        // 讀取存檔 (分開存)
+        loadProgress(g);
         renderMap();
         updateHUD();
-        // 自動捲動到目前關卡
+        
         setTimeout(() => {
-            const current = document.querySelector('.level-node.unlocked');
-            if(current) current.scrollIntoView({block: "center", behavior: "smooth"});
+            const curr = document.querySelector('.level-node.unlocked');
+            if(curr) curr.scrollIntoView({block:"center", behavior:"smooth"});
         }, 500);
-    };
-
-    // --- 🗺️ 地圖生成系統 ---
-    function renderMap() {
-        const container = document.getElementById('nodes-container');
-        let pathD = "M 50% 3450"; // 起點
-        let lastX = 50;
-        let lastY = 3450;
-
-        for (let i = 1; i <= TOTAL_LEVELS; i++) {
-            const y = 3450 - (i * 110); // 往上爬
-            const x = 50 + Math.sin(i * 0.8) * 35; // 左右蛇行 (35% 振幅)
-            
-            // 繪製路徑
-            pathD += ` L ${x}% ${y}`;
-            
-            // 繪製節點
-            const node = document.createElement('div');
-            node.className = `level-node ${i < state.level ? 'cleared' : (i === state.level ? 'unlocked' : '')}`;
-            node.style.left = `calc(${x}% - 25px)`;
-            node.style.top = `${y}px`;
-            node.innerText = i;
-            
-            if (i <= state.level) {
-                node.onclick = () => enterLevel(i);
-            }
-            container.appendChild(node);
-        }
-        document.getElementById('map-path').setAttribute('d', pathD.replace(/50%/g, window.innerWidth/2)); // 簡易SVG修正
     }
 
-    // --- ⚔️ 關卡邏輯 ---
-    function enterLevel(lv) {
+    // 2. 地圖渲染
+    function renderMap() {
+        const con = document.getElementById('nodes-container');
+        con.innerHTML = '';
+        let d = "M 50% 3500";
+        for(let i=1; i<=TOTAL_LEVELS; i++) {
+            let y = 3500 - (i*110);
+            let x = 50 + Math.sin(i)*30;
+            d += ` L ${x}% ${y}`;
+            
+            const n = document.createElement('div');
+            n.className = `level-node ${i<state.level?'cleared':(i==state.level?'unlocked':'')}`;
+            n.style.left = `calc(${x}% - 27px)`;
+            n.style.top = `${y}px`;
+            n.innerText = i;
+            if(i <= state.level) n.onclick = () => startLevel(i);
+            con.appendChild(n);
+        }
+        document.getElementById('map-path').setAttribute('d', d.replace(/50%/g, window.innerWidth/2));
+    }
+
+    // 3. 遊戲邏輯 (分級題目)
+    function startLevel(lv) {
         if(lv > state.level) return;
         state.inGame = true;
-        state.levelTime = 0;
-        state.shieldActive = false;
-        
-        // 顯示介面
+        state.shieldOn = false;
         document.getElementById('game-modal').classList.add('active');
-        document.getElementById('level-title').innerText = `Level ${lv}`;
+        document.getElementById('lv-title').innerText = `Level ${lv}`;
         
-        // 根據關卡產生不同遊戲
-        generateGameContent(lv);
+        genQuestion(lv);
         
-        // 啟動計時
-        const maxTime = 30; // 每關30秒
-        let timeLeft = maxTime;
-        document.getElementById('t-fill').style.width = '100%';
-        
-        if(state.gameTimer) clearInterval(state.gameTimer);
-        state.gameTimer = setInterval(() => {
-            timeLeft--;
-            state.levelTime++;
-            state.totalTime++; // 累計總遊戲時間
-            updateHUD();
-            
-            document.getElementById('q-timer').innerText = timeLeft + "s";
-            document.getElementById('t-fill').style.width = (timeLeft/maxTime*100) + "%";
-            
-            if(timeLeft <= 0) {
-                gameOver("時間到！");
-            }
+        let t = 30;
+        document.getElementById('q-timer').innerText = t;
+        if(state.timer) clearInterval(state.timer);
+        state.timer = setInterval(() => {
+            t--; state.totalTime++;
+            document.getElementById('q-timer').innerText = t;
+            document.getElementById('t-bar').style.width = (t/30*100)+"%";
+            document.getElementById('total-time').innerText = state.totalTime;
+            if(t<=0) gameOver();
         }, 1000);
-        
-        updatePowerBtn();
     }
 
-    function generateGameContent(lv) {
-        // 遊戲類型輪替：1.數學 2.反應 3.密碼
-        const type = lv % 3; 
-        const content = document.getElementById('g-content');
-        const opts = document.getElementById('g-opts');
-        opts.innerHTML = '';
+    function genQuestion(lv) {
+        const qDiv = document.getElementById('q-content');
+        const optsDiv = document.getElementById('q-opts');
+        optsDiv.innerHTML = '';
+        const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+        let q, a, opts;
 
-        if(type === 1) { // 🧮 數學題 (隨關卡變難)
-            const n1 = Math.floor(Math.random() * (lv*5)) + 5;
-            const n2 = Math.floor(Math.random() * 9) + 2;
-            const ans = n1 * n2;
-            content.innerText = `${n1} × ${n2} = ?`;
-            createOptions([ans, ans+n2, ans-n2, ans+10], ans);
-        } else if (type === 2) { // ⚡ 反應題
-            const colors = ['紅','藍','綠','黃'];
-            const cMap = {'紅':'red','藍':'blue','綠':'green','黃':'gold'};
-            const txt = colors[Math.floor(Math.random()*4)];
-            const col = colors[Math.floor(Math.random()*4)];
-            content.innerHTML = `<span style="color:${cMap[col]}; font-size:3rem;">${txt}</span><br><span style="font-size:1rem">點選文字顏色！</span>`;
-            createOptions(colors, col); // 答案是顏色(col)，不是文字(txt)
-        } else { // 🔐 邏輯題
-            const seq = [2,4,6,8,10].map(x => x + lv);
-            content.innerText = `${seq[0]}, ${seq[1]}, ${seq[2]}, ?`;
-            createOptions([seq[3], seq[3]+1, seq[3]-1, seq[3]+2], seq[3]);
+        // --- 分級出題核心 ---
+        if(state.grade === 'low') {
+            // 低年級：20以內加減、顏色
+            if(lv % 2 !== 0) {
+                let n1=r(1,10), n2=r(1,9);
+                q=`${n1} + ${n2} = ?`; a=n1+n2;
+                opts=[a, a+1, a-1, a+2];
+            } else {
+                let cs=['🔴','🔵','🟢','🟡']; let txt=['紅','藍','綠','黃'];
+                let idx=r(0,3); q=`選出 ${txt[idx]}色`; a=cs[idx];
+                opts=cs;
+            }
+        } else if(state.grade === 'mid') {
+            // 中年級：乘法、簡易數列
+            if(lv % 2 !== 0) {
+                let n1=r(2,9), n2=r(2,9);
+                q=`${n1} × ${n2} = ?`; a=n1*n2;
+                opts=[a, a+n2, a-n2, a+10];
+            } else {
+                let start=r(1,5), step=r(2,5);
+                q=`${start}, ${start+step}, ${start+step*2}, ?`; a=start+step*3;
+                opts=[a, a+1, a-1, a+2];
+            }
+        } else {
+            // 高年級：混合運算、大數
+            let n1=r(11,20), n2=r(2,9), n3=r(1,50);
+            q=`${n1} × ${n2} - ${n3} = ?`; a=n1*n2-n3;
+            opts=[a, a+10, a-5, a+1];
         }
-    }
 
-    function createOptions(arr, correct) {
-        const opts = document.getElementById('g-opts');
-        // 打亂
-        arr.sort(()=>0.5-Math.random()).forEach(val => {
-            const btn = document.createElement('button');
-            btn.className = 'g-btn';
-            btn.innerText = val;
-            btn.onclick = () => checkAnswer(val, correct);
-            opts.appendChild(btn);
+        qDiv.innerText = q;
+        opts.sort(()=>0.5-Math.random()).forEach(o => {
+            const b = document.createElement('button');
+            b.className='opt-btn'; b.innerText=o;
+            b.onclick = () => checkAns(o, a);
+            optsDiv.appendChild(b);
         });
     }
 
-    function checkAnswer(val, correct) {
+    function checkAns(ans, correct) {
         if(!state.inGame) return;
-        
-        if(String(val) === String(correct)) {
-            levelClear();
+        if(String(ans) === String(correct)) {
+            winLevel();
         } else {
-            if(state.shieldActive) {
-                alert("🛡️ 護盾抵擋了一次錯誤！");
-                state.shieldActive = false;
-                document.getElementById('btn-shield').style.opacity = 0.5;
+            if(state.shieldOn) {
+                alert("🛡️ 護盾生效！"); state.shieldOn=false;
             } else {
-                // 懲罰：時間扣 5 秒
-                state.totalTime += 5; 
-                alert("❌ 答錯！總時間 +5秒 懲罰");
+                alert("❌ 答錯罰時 +5秒"); state.totalTime+=5;
             }
         }
     }
 
-    function levelClear() {
-        clearInterval(state.gameTimer);
+    function winLevel() {
+        clearInterval(state.timer);
         state.inGame = false;
-        alert(`🎉 通關！耗時 ${state.levelTime} 秒`);
-        
-        // 給獎勵
-        if(state.level % 3 === 0) { // 每3關送道具
-            const gifts = ['time', 'shield', 'key'];
-            const gift = gifts[Math.floor(Math.random()*3)];
-            state.items[gift]++;
-            alert(`🎁 獲得道具：${gift === 'time'?'沙漏':(gift==='shield'?'護盾':'鑰匙')}`);
-        }
-
         document.getElementById('game-modal').classList.remove('active');
         
-        // 升級
+        if(state.level % 3 === 0) {
+            let gift = ['time','shield','key'][Math.floor(Math.random()*3)];
+            state.items[gift]++;
+            alert(`🎁 獲得道具：${gift}`);
+        }
+
         if(state.level < TOTAL_LEVELS) {
             state.level++;
+            saveProgress(state.grade);
+            renderMap();
+            setTimeout(() => {
+                document.querySelector('.level-node.unlocked').scrollIntoView({block:"center",behavior:"smooth"});
+            }, 300);
         } else {
-            gameComplete();
+            gameWin();
         }
-        
-        saveProgress();
-        // 重繪地圖 (簡單暴力重整)
-        location.reload();
+        updateHUD();
     }
 
-    function gameOver(msg) {
-        clearInterval(state.gameTimer);
-        state.inGame = false;
-        alert(`💀 ${msg} 再試一次吧！`);
+    function gameOver() {
+        clearInterval(state.timer); state.inGame=false;
+        alert("💀 時間到！");
         document.getElementById('game-modal').classList.remove('active');
     }
 
-    function gameComplete() {
+    function gameWin() {
         document.getElementById('win-modal').classList.add('active');
         document.getElementById('final-time').innerText = state.totalTime;
+        document.getElementById('final-grade').innerText = document.getElementById('grade-display').innerText;
     }
 
-    // --- 🎒 道具與存檔系統 ---
-    function triggerPower(type) {
-        if(state.items[type] > 0) {
-            if(type === 'time') {
-                state.totalTime -= 10; // 總時間減少 (這是作弊器XD)
-                alert("⏳ 總時間 -10秒！");
-            } else if(type === 'shield') {
-                state.shieldActive = true;
-                alert("🛡️ 護盾已啟動！");
-            } else if(type === 'key') {
-                levelClear(); // 直接過關
-            }
+    // 4. 道具
+    function useItem(type) {
+        if(state.items[type]>0) {
             state.items[type]--;
+            if(type==='time') { state.totalTime-=10; alert("時間-10s"); }
+            if(type==='shield') { state.shieldOn=true; alert("護盾開啟"); }
+            if(type==='key') { winLevel(); }
             updateHUD();
-            updatePowerBtn();
-            saveProgress();
+            saveProgress(state.grade);
         }
     }
-
-    function updatePowerBtn() {
-        ['time','shield','key'].forEach(t => {
-            const btn = document.getElementById('btn-'+t);
-            if(state.items[t] > 0) btn.classList.add('has-item');
-            else btn.classList.remove('has-item');
-        });
-    }
-
+    
     function updateHUD() {
-        document.getElementById('total-time').innerText = state.totalTime;
         document.getElementById('c-time').innerText = state.items.time;
         document.getElementById('c-shield').innerText = state.items.shield;
         document.getElementById('c-key').innerText = state.items.key;
+        document.getElementById('total-time').innerText = state.totalTime;
     }
 
-    function saveProgress() {
-        const data = { level: state.level, items: state.items, time: state.totalTime };
-        localStorage.setItem('jetpay_adventure', JSON.stringify(data));
+    // 5. 存檔
+    function saveProgress(g) {
+        const d = { level: state.level, items: state.items, time: state.totalTime };
+        localStorage.setItem('adv_save_' + g, JSON.stringify(d));
     }
-
-    function loadProgress() {
-        const saved = localStorage.getItem('jetpay_adventure');
-        if(saved) {
-            const data = JSON.parse(saved);
-            state.level = data.level;
-            state.items = data.items;
-            state.totalTime = data.time;
+    function loadProgress(g) {
+        const s = localStorage.getItem('adv_save_' + g);
+        if(s) {
+            const d = JSON.parse(s);
+            state.level = d.level; state.items = d.items; state.totalTime = d.time;
+        } else {
+            state.level = 1; state.items = {time:1,shield:1,key:0}; state.totalTime = 0;
         }
     }
 
-    // --- 🏆 排行榜與上傳 ---
+    // 6. 排行榜
     function submitScore() {
-        const name = document.getElementById('input-name').value;
-        if(!name) return alert("請輸入名字");
-        
+        const n = document.getElementById('input-name').value;
+        if(!n) return;
         fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ type: 'record', name: name, time: state.totalTime }),
-            headers: { "Content-Type": "text/plain" }
-        }).then(res => res.json()).then(d => {
-            alert("✅ 成績上傳成功！");
-            closeWin();
-        });
+            method:'POST',
+            body:JSON.stringify({type:'record', name:n, time:state.totalTime, grade:state.grade})
+        }).then(()=>{ alert("上傳成功"); location.reload(); });
     }
 
-    function showRank() {
+    function openRank() {
         document.getElementById('rank-modal').classList.add('active');
-        const list = document.getElementById('rank-list');
-        list.innerHTML = "載入中...";
-        
-        fetch(API_URL + "?action=getRank")
-            .then(res => res.json())
-            .then(data => {
-                list.innerHTML = "";
-                data.slice(0, 10).forEach((r, i) => {
-                    const row = document.createElement('div');
-                    row.className = 'rank-row';
-                    row.innerHTML = `<span>#${i+1} ${r.name}</span> <span>${r.time}s</span>`;
-                    list.appendChild(row);
+        loadRank(state.grade); // 預設載入當前年級
+    }
+
+    function loadRank(grade, btn) {
+        if(btn) {
+            document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const div = document.getElementById('rank-list');
+        div.innerHTML = "載入中...";
+        fetch(API_URL + `?action=getRank&grade=${grade}`)
+            .then(r=>r.json())
+            .then(d=>{
+                div.innerHTML = "";
+                if(d.length==0) div.innerHTML = "尚無紀錄";
+                d.slice(0,10).forEach((row,i) => {
+                    div.innerHTML += `<div class="rank-row"><span>#${i+1} ${row.name}</span><span>${row.time}s</span></div>`;
                 });
             });
     }
 
-    function closeWin() { document.getElementById('win-modal').classList.remove('active'); }
-    function closeRank() { document.getElementById('rank-modal').classList.remove('active'); }
-
 </script>
-
 </body>
 </html>
