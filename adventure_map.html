@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：時空穿越者 (V27.7)</title>
+    <title>傑特佩大冒險：時空穿越者 (V28)</title>
     <style>
         :root { --locked: #444; --unlocked: #29b6f6; --cleared: #fbc02d; }
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
@@ -14,62 +14,77 @@
             position: relative; scroll-behavior: smooth; padding-bottom: 80px; background: #000;
         }
 
-        /* === 🌍 五大世界背景 (使用 wsrv.nl 代理穿透防火牆) === */
+        /* === 🌍 五大世界背景 (CSS 純代碼繪製 - 絕不死圖) === */
         .zone {
             position: absolute; width: 100%; height: 700px; left: 0; z-index: 0;
-            background-size: cover; background-position: center;
-            background-color: #222; /* 圖片載入失敗時的底色 */
             border-top: 5px solid rgba(0,0,0,0.5);
-            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.4);
         }
         
-        /* World 1: 迷霧森林 */
+        /* World 1: 迷霧森林 (深綠漸層 + 樹影條紋) */
         .zone-1 { 
             top: 2800px; 
-            /* 使用 wsrv.nl 代理 Unsplash 圖片 */
-            background-image: url('https://wsrv.nl/?url=images.unsplash.com/photo-1511497584788-876760111969&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 50, 0, 0.4); 
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* 深邃森林色 */
+            /* 模擬樹幹紋理 */
+            background-image: repeating-linear-gradient(90deg, transparent 0, transparent 40px, rgba(0,0,0,0.2) 40px, rgba(0,0,0,0.2) 60px),
+                              linear-gradient(to bottom, rgba(0,50,0,0.8), #1a2f1a);
         }
-        /* World 2: 烈日沙漠 */
+        
+        /* World 2: 烈日沙漠 (熱浪橘黃 + 沙丘波紋) */
         .zone-2 { 
             top: 2100px; 
-            background-image: url('https://wsrv.nl/?url=images.unsplash.com/photo-1509316709124-e333e8293633&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(200, 100, 0, 0.2); 
+            background: linear-gradient(135deg, #ff8008, #ffc837); /* 烈日橘 */
+            /* 模擬沙丘曲線 */
+            background-image: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.2) 0%, transparent 50%),
+                              radial-gradient(circle at 0% 0%, rgba(255,0,0,0.1) 0%, transparent 40%);
         }
-        /* World 3: 極地冰原 */
+        
+        /* World 3: 極地冰原 (冰晶藍 + 碎裂幾何) */
         .zone-3 { 
             top: 1400px; 
-            background-image: url('https://wsrv.nl/?url=images.unsplash.com/photo-1478562853135-c3c9e3ef7905&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 50, 150, 0.3); 
+            background: linear-gradient(to right, #00c6ff, #0072ff); /* 冰藍 */
+            /* 模擬冰裂紋 */
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
         }
-        /* World 4: 熔岩火山 */
+        
+        /* World 4: 熔岩火山 (黑紅地獄 + 岩漿流動感) */
         .zone-4 { 
             top: 700px; 
-            background-image: url('https://wsrv.nl/?url=images.unsplash.com/photo-1462331940025-496dfa712568&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.3); 
+            background: linear-gradient(to bottom, #870000, #190a05); /* 岩漿紅黑 */
+            /* 模擬岩漿斑點 */
+            background-image: radial-gradient(circle at 30% 30%, #ff4d4d 0%, transparent 20%),
+                              radial-gradient(circle at 70% 70%, #ff4d4d 0%, transparent 20%),
+                              repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(0,0,0,0.5) 10px, rgba(0,0,0,0.5) 20px);
         }
-        /* World 5: 機械城堡 */
+        
+        /* World 5: 機械城堡 (金屬灰 + 鋼板網格) */
         .zone-5 { 
             top: 0px; 
-            background-image: url('https://wsrv.nl/?url=images.unsplash.com/photo-1563805042-7684c019e1cb&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.6); 
+            background: radial-gradient(circle, #304352, #d7d2cc); /* 金屬光澤 */
+            background: #232526; 
+            /* 模擬金屬鋼板網格 */
+            background-image: linear-gradient(#333 2px, transparent 2px),
+                              linear-gradient(90deg, #333 2px, transparent 2px),
+                              linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
         }
 
         .zone-label {
-            position: absolute; top: 30px; left: 30px; font-size: 2.2rem; font-weight: bold;
-            color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 3px;
-            text-shadow: 3px 3px 10px rgba(0,0,0,1); pointer-events: none;
+            position: absolute; top: 30px; left: 30px; font-size: 2.5rem; font-weight: bold;
+            color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 2px 2px 0 #000; pointer-events: none;
         }
-        .zone-5 .zone-label { top: 120px; }
+        /* 避免被 HUD 擋住 */
+        .zone-5 .zone-label { top: 120px; text-shadow: 0 0 10px #00f; }
 
         /* 關卡節點 */
         .level-node {
             position: absolute; width: 60px; height: 60px; border-radius: 50%;
-            background: var(--locked); border: 3px solid rgba(255,255,255,0.6); left: 50%;
+            background: var(--locked); border: 4px solid rgba(255,255,255,0.8); left: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; font-size: 1.3rem; cursor: pointer; z-index: 10;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8); transition: 0.2s;
-            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8); transition: 0.2s;
         }
         .level-node.unlocked { background: var(--unlocked); animation: pulse 1.5s infinite; border-color: white; box-shadow: 0 0 25px var(--unlocked); }
         .level-node.cleared { background: var(--cleared); color: #333; border-color: #fff; }
@@ -77,17 +92,17 @@
 
         /* 路徑線 */
         #path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 3500px; pointer-events: none; z-index: 5; }
-        path { fill: none; stroke: rgba(255,255,255,0.8); stroke-width: 6; stroke-dasharray: 12; stroke-linecap: round; filter: drop-shadow(0 0 5px black); }
+        path { fill: none; stroke: rgba(255,255,255,0.7); stroke-width: 8; stroke-dasharray: 15; stroke-linecap: round; filter: drop-shadow(0 0 5px black); }
 
         /* === UI 介面 === */
         /* 分級選擇頁 */
-        .intro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .intro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #222; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .grade-btn { width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 5px 0 rgba(0,0,0,0.5); }
         .grade-btn:active { transform: translateY(5px); box-shadow: none; }
         .g-low { background: #4caf50; } .g-mid { background: #ff9800; } .g-high { background: #f44336; }
         
         /* HUD */
-        #hud { position: fixed; top: 0; left: 0; width: 100%; padding: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #333; }
+        #hud { position: fixed; top: 0; left: 0; width: 100%; padding: 10px; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 2px solid #444; }
         .status-box { font-size: 0.9rem; display: flex; gap: 12px; color: #fff; align-items: center; }
         .item-icon { position: relative; font-size: 1.5rem; margin-right: 5px; cursor: pointer; transition: 0.2s; } 
         .item-icon:hover { transform: scale(1.1); }
@@ -210,13 +225,13 @@
 </div>
 
 <script>
-    // 🔴 🔴 🔴 請在下方貼上您 GAS (Apps Script) 的網址 🔴 🔴 🔴
+    // 🔴 🔴 🔴 請在下方貼上您 GAS (Apps Script) 的網址 (V3.1) 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
     const TOTAL_LEVELS = 30;
     let state = { grade: 'mid', level: 1, items: { time: 2, shield: 2, key: 1 }, totalTime: 0, timer: null, inGame: false, shieldOn: false };
 
-    // 全科題庫 (國/英/數/社/自) - 包含三種難度
+    // 全科題庫
     const DB = {
         low: [
             {t:"數學", q:"5 + 8 = ?", a:"13", o:["13","12","14","15"]},
@@ -303,20 +318,16 @@
     function genQuestion(lv) {
         const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
         let pool = DB[state.grade] || DB['mid'];
-        
         let qData;
         if(lv % 3 === 0) {
-            // 每3關強制數學 (增加運算練習)
              if(state.grade === 'low') { let n1=r(1,10), n2=r(1,9); qData={t:"數學", q:`${n1} + ${n2} = ?`, a:n1+n2, o:[n1+n2, n1+n2+1, n1+n2-1, n1+n2+2]}; }
              else if(state.grade === 'mid') { let n1=r(2,9), n2=r(2,9); qData={t:"數學", q:`${n1} × ${n2} = ?`, a:n1*n2, o:[n1*n2, n1*n2+10, n1*n2-5, n1*n2+1]}; }
              else { let n1=r(11,20), n2=r(2,9); qData={t:"數學", q:`${n1} × ${n2} = ?`, a:n1*n2, o:[n1*n2, n1*n2+10, n1*n2-10, n1*n2+2]}; }
         } else {
             qData = pool[Math.floor(Math.random() * pool.length)];
         }
-
         document.getElementById('subj-tag').innerText = qData.t;
         document.getElementById('q-content').innerText = qData.q;
-        
         const optsDiv = document.getElementById('q-opts'); optsDiv.innerHTML = '';
         let opts = qData.o.map(String); 
         opts.sort(()=>0.5-Math.random()).forEach(o => {
@@ -329,7 +340,7 @@
         if(!state.inGame) return;
         if(String(ans) === String(correct)) { winLevel(); }
         else {
-            if(state.shieldOn) { alert("🛡️ 護盾生效！抵擋一次錯誤！"); state.shieldOn=false; }
+            if(state.shieldOn) { alert("🛡️ 護盾生效！"); state.shieldOn=false; }
             else { alert("❌ 答錯 +5秒！"); state.totalTime+=5; }
             updateHUD();
         }
@@ -340,14 +351,14 @@
         document.getElementById('game-modal').classList.remove('active');
         if(state.level % 5 === 0) {
             let gift = ['time','shield','key'][Math.floor(Math.random()*3)];
-            state.items[gift]++; alert(`🎁 通過 BOSS 關卡！獲得道具：${gift === 'time'?'沙漏':(gift==='shield'?'護盾':'鑰匙')}`);
+            state.items[gift]++; alert(`🎁 通過 BOSS 關卡！獲得道具：${gift}`);
         }
         if(state.level < TOTAL_LEVELS) { state.level++; saveProgress(state.grade); renderMap(); setTimeout(() => { document.querySelector('.level-node.unlocked').scrollIntoView({block:"center",behavior:"smooth"}); }, 300); }
         else { gameWin(); }
         updateHUD();
     }
 
-    function gameOver() { clearInterval(state.timer); state.inGame=false; alert("💀 時間到！挑戰失敗！"); document.getElementById('game-modal').classList.remove('active'); }
+    function gameOver() { clearInterval(state.timer); state.inGame=false; alert("💀 時間到！"); document.getElementById('game-modal').classList.remove('active'); }
     function gameWin() { document.getElementById('win-modal').classList.add('active'); document.getElementById('final-time').innerText = state.totalTime; document.getElementById('final-grade').innerText = document.getElementById('grade-display').innerText; }
 
     function useItem(type) {
@@ -369,9 +380,9 @@
         document.getElementById('g-c-time').innerText = state.items.time; document.getElementById('g-c-shield').innerText = state.items.shield; document.getElementById('g-c-key').innerText = state.items.key;
     }
 
-    function saveProgress(g) { localStorage.setItem('adv_save_v27_1_' + g, JSON.stringify({ level: state.level, items: state.items, time: state.totalTime })); }
+    function saveProgress(g) { localStorage.setItem('adv_save_v28_' + g, JSON.stringify({ level: state.level, items: state.items, time: state.totalTime })); }
     function loadProgress(g) {
-        const s = localStorage.getItem('adv_save_v27_1_' + g);
+        const s = localStorage.getItem('adv_save_v28_' + g);
         if(s) { const d = JSON.parse(s); state.level = d.level; state.items = d.items; state.totalTime = d.time; }
         else { state.level = 1; state.items = {time:2,shield:2,key:1}; state.totalTime = 0; }
     }
@@ -388,7 +399,7 @@
         if(btn) { document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
         const div = document.getElementById('rank-list'); div.innerHTML = '<div style="text-align:center;">載入中...</div>';
         fetch(API_URL + `?action=getRank&grade=${grade}`).then(r=>r.json()).then(d=>{
-            div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄，快來搶第一！</div>';
+            div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄</div>';
             d.slice(0,10).forEach((row,i) => {
                 let medal = i===0?'🥇':(i===1?'🥈':(i===2?'🥉':(i+1+'.')));
                 div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.time}s</span></div>`;
