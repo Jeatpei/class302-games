@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：時空穿越者 (V27.4)</title>
+    <title>傑特佩大冒險：時空穿越者 (V27.5)</title>
     <style>
         :root { --locked: #444; --unlocked: #29b6f6; --cleared: #fbc02d; }
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
@@ -14,44 +14,44 @@
             position: relative; scroll-behavior: smooth; padding-bottom: 80px; background: #000;
         }
 
-        /* === 🌍 五大世界背景 (V27.4 指定ID修復版) === */
+        /* === 🌍 五大世界背景 (改用 Wikimedia 永久靜態連結) === */
         .zone {
             position: absolute; width: 100%; height: 700px; left: 0; z-index: 0;
             background-size: cover; background-position: center;
             border-top: 5px solid rgba(0,0,0,0.5);
-            /* 加上遮罩讓文字更清楚 */
-            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.4);
+            /* 黑色遮罩，確保文字可讀 */
+            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.3);
         }
         
-        /* World 1: 迷霧森林 (保持原樣，這張很穩) */
+        /* World 1: 迷霧森林 (真實針葉林) */
         .zone-1 { 
             top: 2800px; 
-            background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80'); 
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Misty_forest_in_Baden-W%C3%BCrttemberg_in_the_early_morning.jpg/1280px-Misty_forest_in_Baden-W%C3%BCrttemberg_in_the_early_morning.jpg'); 
             box-shadow: inset 0 0 0 1000px rgba(0, 50, 0, 0.4); 
         }
-        /* World 2: 烈日沙漠 (保持原樣，這張很穩) */
+        /* World 2: 烈日沙漠 (真實沙丘) */
         .zone-2 { 
             top: 2100px; 
-            background-image: url('https://images.unsplash.com/photo-1509316709124-e333e8293633?auto=format&fit=crop&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(255, 140, 0, 0.2); 
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Rub_al_Khali_002.JPG/1280px-Rub_al_Khali_002.JPG'); 
+            box-shadow: inset 0 0 0 1000px rgba(200, 100, 0, 0.2); 
         }
-        /* World 3: 極地冰原 (修復：改成深藍冰洞) */
+        /* World 3: 極地冰原 (真實冰島藍冰洞) */
         .zone-3 { 
             top: 1400px; 
-            background-image: url('https://images.unsplash.com/photo-1518182170546-0766ba6f6a56?auto=format&fit=crop&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 50, 150, 0.3); 
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Ice_Cave_in_iceland.jpg/1280px-Ice_Cave_in_iceland.jpg'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 50, 100, 0.3); 
         }
-        /* World 4: 熔岩火山 (修復：改成暗黑岩漿流) */
+        /* World 4: 熔岩火山 (夏威夷岩漿湖) */
         .zone-4 { 
             top: 700px; 
-            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfa712568?auto=format&fit=crop&w=1000&q=80'); 
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Kilauea_Lava_Lake.jpg/1280px-Kilauea_Lava_Lake.jpg'); 
             box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.3); 
         }
-        /* World 5: 機械城堡 (修復：改成工業管線與鋼鐵結構) */
+        /* World 5: 機械城堡 (德國赫爾曼鋼鐵廠夜景 - 強烈金屬感) */
         .zone-5 { 
             top: 0px; 
-            background-image: url('https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1000&q=80'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.6); 
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Hermann_H%C3%BCtte_Hochofen.jpg/1280px-Hermann_H%C3%BCtte_Hochofen.jpg'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5); 
         }
 
         .zone-label {
@@ -59,8 +59,7 @@
             color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 3px;
             text-shadow: 3px 3px 10px rgba(0,0,0,1); pointer-events: none;
         }
-        
-        /* World 5 的字往下移，避免被 HUD 擋住 */
+        /* 避免被 HUD 擋住 */
         .zone-5 .zone-label { top: 120px; }
 
         /* 關卡節點 */
