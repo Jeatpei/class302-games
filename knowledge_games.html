@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩知識殿堂 V38</title>
+    <title>傑特佩知識殿堂 V38 (排行榜獨立版)</title>
     <style>
-        /* 樣式保持不變 */
+        /* === 核心樣式設定 === */
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #000; color: #333; user-select: none; }
         #bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('bg_knowledge.jpg'); background-size: cover; background-position: center; filter: blur(3px) brightness(0.5); z-index: -1; }
         .container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding-bottom: 100px; padding-top: 60px; box-sizing: border-box; position: relative; overflow-y: auto; }
+        
+        /* 標題區 */
         .header { position: absolute; top: 20px; width: 100%; text-align: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); z-index: 10; }
         .header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 2px; }
         .header p { margin: 5px 0 0; color: #ddd; font-size: 0.9rem; }
+        
+        /* 選單區 */
         #grade-menu { background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 85%; max-width: 400px; border: 1px solid #fff; z-index: 20; }
         .g-btn { display: block; width: 100%; padding: 15px; margin: 15px 0; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; transition: 0.2s; color: white; box-shadow: 0 5px 0 rgba(0,0,0,0.2); text-align: left; padding-left: 30px; position: relative; }
         .g-btn:active { transform: translateY(5px); box-shadow: none; }
@@ -19,33 +23,46 @@
         .btn-low { background: linear-gradient(to right, #4caf50, #81c784); }
         .btn-mid { background: linear-gradient(to right, #ff9800, #ffb74d); }
         .btn-high { background: linear-gradient(to right, #2196f3, #64b5f6); }
+        
+        /* 遊戲介面 */
         #game-interface { display: none; width: 90%; max-width: 600px; animation: slideUp 0.5s; z-index: 20; }
         .status-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 50px; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px); }
         #timer-bar-bg { width: 100%; height: 8px; background: #555; border-radius: 4px; margin-top: 5px; overflow: hidden; display: none; }
         #timer-bar-fill { height: 100%; width: 100%; background: #fb8c00; transition: width 1s linear; }
         #lives-container { color: #f44336; letter-spacing: 2px; display: none; margin-left:10px;}
+        
+        /* 題目卡片 */
         .quiz-card { background: #fff; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); text-align: center; position: relative; min-height: 220px; display: flex; flex-direction: column; justify-content: center; border: 4px solid #fff; }
         .subject-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 5px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .q-text { font-size: 1.6rem; font-weight: bold; line-height: 1.4; margin: 20px 0; color: #2c3e50; }
+        
+        /* 按鈕區 */
         .tf-area { display: flex; gap: 30px; margin-top: 30px; justify-content: center; }
         .tf-btn { width: 90px; height: 90px; border-radius: 50%; border: 5px solid #fff; font-size: 2.5rem; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.1s; }
         .tf-btn:active { transform: scale(0.9); }
         .btn-o { background: #4caf50; } .btn-x { background: #f44336; }
+        
         .mcq-area { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .mcq-btn { padding: 15px; font-size: 1.1rem; font-weight: bold; border: none; background: #fff; color: #333; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 #ccc; border: 2px solid #eee; transition: 0.1s; min-height: 70px; display: flex; align-items: center; justify-content: center; }
         .mcq-btn:active { transform: translateY(4px); box-shadow: none; background: #eee; }
+        
+        /* 彈窗與導航 */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; backdrop-filter: blur(8px); }
         .modal.active { display: flex; animation: fadeIn 0.3s; } 
         .modal-box { background: #fff; padding: 30px; border-radius: 20px; width: 85%; max-width: 400px; text-align: center; border: 5px solid #eee; }
         .rank-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #ddd; font-size: 1rem; color:#333; text-align:left; }
+        
         #jetpay-navbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; height: 65px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 50px; border: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 9999; } .nav-item { text-decoration: none; color: #95a5a6; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; transition: 0.2s; } .nav-icon { font-size: 1.6rem; margin-bottom: 2px; } .nav-item:hover { color: #2c3e50; transform: translateY(-2px); } .nav-item-special { color: #e67e22; font-weight: bold; } .nav-item-special .nav-icon { background: #e67e22; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); margin-top: -20px; border: 4px solid white; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } .feedback-popup { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 6rem; z-index: 100; text-shadow: 0 5px 20px rgba(0,0,0,0.5); display: none; animation: popIn 0.5s; } @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); } 80% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1); } }
+        
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } 
+        .feedback-popup { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 6rem; z-index: 100; text-shadow: 0 5px 20px rgba(0,0,0,0.5); display: none; animation: popIn 0.5s; } 
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); } 80% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1); } }
     </style>
 </head>
 <body>
 
 <div id="bg-layer"></div>
-<div class="header"><h1>知識殿堂</h1><p>隨機題庫系統 V38 - 全面修復版</p></div>
+<div class="header"><h1>知識殿堂</h1><p>隨機題庫系統 V38 - 排行榜獨立版</p></div>
 
 <div class="container">
     <div id="grade-menu">
@@ -54,22 +71,37 @@
         <button class="g-btn btn-mid" onclick="startGame('mid')">👦 中年級<span>【速讀王】限時60秒極速挑戰！</span></button>
         <button class="g-btn btn-high" onclick="startGame('high')">🧑‍🎓 高年級<span>【積分王】3次失誤機會！</span></button>
     </div>
+    
     <div id="game-interface">
         <div class="status-bar">
             <div id="status-left"><span class="status-icon">🔰</span><span id="grade-display">低年級</span></div>
             <div id="status-right"><span id="score-label">分數:</span> <span id="score-val" style="color:#ffeb3b; font-size:1.4rem;">0</span><span id="lives-container">❤️❤️❤️</span></div>
         </div>
         <div id="timer-bar-bg"><div id="timer-bar-fill"></div></div>
-        <div class="quiz-card"><div class="subject-badge" id="subj-badge">科目</div><div class="q-text" id="q-text">題目載入中...</div></div>
-        <div id="tf-panel" class="tf-area" style="display:none;"><div class="tf-btn btn-o" onclick="checkAns(true)">O</div><div class="tf-btn btn-x" onclick="checkAns(false)">X</div></div>
+        
+        <div class="quiz-card">
+            <div class="subject-badge" id="subj-badge">科目</div>
+            <div class="q-text" id="q-text">題目載入中...</div>
+        </div>
+        
+        <div id="tf-panel" class="tf-area" style="display:none;">
+            <div class="tf-btn btn-o" onclick="checkAns(true)">O</div>
+            <div class="tf-btn btn-x" onclick="checkAns(false)">X</div>
+        </div>
+        
         <div id="mcq-panel" class="mcq-area" style="display:none;"></div>
-        <div style="text-align:center; margin-top:20px;"><button onclick="location.reload()" style="padding:10px 25px; background:rgba(0,0,0,0.5); color:fff; border:1px solid rgba(255,255,255,0.5); border-radius:20px; cursor:pointer;">放棄挑戰</button></div>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <button onclick="location.reload()" style="padding:10px 25px; background:rgba(0,0,0,0.5); color:#fff; border:1px solid rgba(255,255,255,0.5); border-radius:20px; cursor:pointer;">放棄挑戰</button>
+        </div>
     </div>
 </div>
 
 <div class="modal" id="result-modal">
     <div class="modal-box">
-        <h1 id="res-title" style="margin:0 0 10px 0;">挑戰結束</h1><p id="res-desc" style="color:#666;"></p><h2 id="res-score" style="font-size:3rem; color:#f44336; margin:10px 0;">0</h2>
+        <h1 id="res-title" style="margin:0 0 10px 0;">挑戰結束</h1>
+        <p id="res-desc" style="color:#666;"></p>
+        <h2 id="res-score" style="font-size:3rem; color:#f44336; margin:10px 0;">0</h2>
         <p style="color:#999; font-size:0.9rem;">請輸入名字上傳榮譽榜</p>
         <input type="text" id="input-name" placeholder="例如: 301 小明" style="padding:10px; width:80%; font-size:1.1rem; text-align:center; border:2px solid #ddd; border-radius:10px;"><br><br>
         <button onclick="submitScore()" style="width:100%; padding:15px; background:#2196f3; color:white; border:none; border-radius:10px; font-size:1.2rem; cursor:pointer; font-weight:bold;">上傳成績</button>
@@ -79,48 +111,59 @@
 
 <div class="modal" id="rank-modal">
     <div class="modal-box" style="height:70vh; display:flex; flex-direction:column;">
-        <h2 style="margin:0 0 15px 0;">🏆 英雄榜</h2>
-        <div class="rank-tabs"><button class="g-btn btn-low" style="padding:5px; text-align:center; font-size:0.9rem;" onclick="loadRank('low')">低年級</button><button class="g-btn btn-mid" style="padding:5px; text-align:center; font-size:0.9rem;" onclick="loadRank('mid')">中年級</button><button class="g-btn btn-high" style="padding:5px; text-align:center; font-size:0.9rem;" onclick="loadRank('high')">高年級</button></div>
+        <h2 style="margin:0 0 15px 0;">🏆 知識英雄榜</h2>
+        <div class="rank-tabs">
+            <button class="g-btn btn-low" style="padding:5px; text-align:center; font-size:0.9rem;" onclick="loadRank('low')">低年級</button>
+            <button class="g-btn btn-mid" style="padding:5px; text-align:center; font-size:0.9rem;" onclick="loadRank('mid')">中年級</button>
+            <button class="g-btn btn-high" style="padding:5px; text-align:center; font-size:0.9rem;" onclick="loadRank('high')">高年級</button>
+        </div>
         <div id="rank-list" style="flex:1; overflow-y:auto; margin-top:10px; border-top:1px solid #eee;">載入中...</div>
         <button onclick="document.getElementById('rank-modal').classList.remove('active')" style="margin-top:10px; padding:10px; background:#ddd; border:none; border-radius:10px; cursor:pointer;">關閉</button>
     </div>
 </div>
 
-<div id="fb-correct" class="feedback-popup">✅</div><div id="fb-wrong" class="feedback-popup">❌</div>
-<div id="jetpay-navbar"><a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span>首頁</span></a><a href="simple_games.html" class="nav-item"><span class="nav-icon">🧩</span><span>簡單</span></a><a href="adventure_map.html" class="nav-item"><span class="nav-icon">🏰</span><span>闖關</span></a><a href="knowledge_games.html" class="nav-item nav-item-special"><span class="nav-icon">📚</span><span>知識</span></a><a href="#" class="nav-item" onclick="openRank()"><span class="nav-icon">🏆</span><span>排行</span></a></div>
+<div id="fb-correct" class="feedback-popup">✅</div>
+<div id="fb-wrong" class="feedback-popup">❌</div>
+
+<div id="jetpay-navbar">
+    <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span>首頁</span></a>
+    <a href="simple_games.html" class="nav-item"><span class="nav-icon">🧩</span><span>簡單</span></a>
+    <a href="adventure_map.html" class="nav-item"><span class="nav-icon">🏰</span><span>闖關</span></a>
+    <a href="knowledge_games.html" class="nav-item nav-item-special"><span class="nav-icon">📚</span><span>知識</span></a>
+    <a href="#" class="nav-item" onclick="openRank()"><span class="nav-icon">🏆</span><span>排行</span></a>
+</div>
 
 <script>
-    // 🔴 🔴 🔴 請在下方貼上您 GAS (Apps Script) 的網址 (V5.0) 🔴 🔴 🔴
+    // 🔴 🔴 🔴 請確認此處 GAS 網址與您的 Apps Script 部署網址一致 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
     // === V38: 五重平行宇宙題庫 (Set A ~ E) ===
-    // 🔴 已修復所有缺漏的選項，現在全部都是 4 選 1 (除了是非題)
     const UNIVERSE = [
-        // Set A: 經典基礎題 (V36 的內容)
+        // Set A
         {
             low: [{s:"生活",q:"紅燈停，綠燈行。",a:true}, {s:"數學",q:"5+5=10",a:true}, {s:"自然",q:"魚在水裡游",a:true}, {s:"英文",q:"Apple是蘋果",a:true}, {s:"國語",q:"大對小",a:true}],
             mid: [{s:"社會",q:"首都在台北",o:["台北","台中","高雄","台南"],a:"台北"}, {s:"數學",q:"8x7=?",o:["56","48","64","54"],a:"56"}],
             high: [{s:"社會",q:"最高峰是?",o:["玉山","雪山","阿里山","陽明山"],a:"玉山"}, {s:"自然",q:"太陽系最大?",o:["木星","土星","地球","火星"],a:"木星"}]
         },
-        // Set B: 生活應用題
+        // Set B
         {
             low: [{s:"生活",q:"受傷要去警察局。",a:false}, {s:"數學",q:"10元換5個1元。",a:false}, {s:"自然",q:"下雨會有彩虹。",a:true}, {s:"英文",q:"Dog是貓。",a:false}, {s:"國語",q:"筆是用來寫字。",a:true}],
             mid: [{s:"社會",q:"寄信用什麼?",o:["郵票","車票","發票","鈔票"],a:"郵票"}, {s:"數學",q:"直角幾度?",o:["90","60","45","180"],a:"90"}],
             high: [{s:"社會",q:"立法院負責?",o:["修法","抓人","救火","蓋房"],a:"修法"}, {s:"自然",q:"人體最大器官?",o:["皮膚","心臟","肝臟","肺"],a:"皮膚"}]
         },
-        // Set C: 趣味冷知識題 (🔴 已修復選項)
+        // Set C
         {
             low: [{s:"自然",q:"兔子愛吃肉。",a:false}, {s:"數學",q:"時鐘有12個數字。",a:true}, {s:"生活",q:"過年要領紅包。",a:true}, {s:"英文",q:"Red是藍色。",a:false}, {s:"國語",q:"書的單位是本。",a:true}],
             mid: [{s:"自然",q:"青蛙小時候?",o:["蝌蚪","毛毛蟲","小魚","孑孓"],a:"蝌蚪"}, {s:"數學",q:"1天幾小時?",o:["24","12","60","48"],a:"24"}],
             high: [{s:"歷史",q:"國父是誰?",o:["孫中山","蔣中正","林肯","孔子"],a:"孫中山"}, {s:"自然",q:"恐龍絕種了嗎?",o:["是","否","還有幾隻","在動物園"],a:"是"}]
         },
-        // Set D: 邏輯與運算題 (🔴 已修復選項)
+        // Set D
         {
             low: [{s:"數學",q:"正方形四邊一樣長。",a:true}, {s:"生活",q:"看到火災打110。",a:false}, {s:"自然",q:"太陽晚上休息。",a:false}, {s:"英文",q:"One是1。",a:true}, {s:"國語",q:"花是植物。",a:true}],
             mid: [{s:"數學",q:"1公里=?公尺",o:["1000","100","10","500"],a:"1000"}, {s:"社會",q:"端午節吃?",o:["粽子","月餅","湯圓","蛋糕"],a:"粽子"}],
             high: [{s:"數學",q:"0.5+0.5=?",o:["1","0.1","10","5"],a:"1"}, {s:"自然",q:"光合作用需要?",o:["陽光","月光","燈光","星光"],a:"陽光"}]
         },
-        // Set E: 挑戰題 (🔴 已修復選項)
+        // Set E
         {
             low: [{s:"數學",q:"2個5是15。",a:false}, {s:"生活",q:"圖書館可以跑步。",a:false}, {s:"自然",q:"冰是熱的。",a:false}, {s:"英文",q:"Book是書。",a:true}, {s:"國語",q:"右的相反是左。",a:true}],
             mid: [{s:"英文",q:"Thank you是?",o:["謝謝","對不起","你好","再見"],a:"謝謝"}, {s:"自然",q:"磁鐵吸什麼?",o:["鐵","木頭","塑膠","紙"],a:"鐵"}],
@@ -128,10 +171,8 @@
         }
     ];
 
-    // 🎲 隨機選擇一個宇宙 (Set)
     const DB = UNIVERSE[Math.floor(Math.random() * UNIVERSE.length)];
-
-    let state = { grade: '', score: 0, lives: 3, timer: 60, timerId: null, isOver: false, usedQ: [] };
+    let state = { grade: '', score: 0, lives: 3, timer: 60, timerId: null, isOver: false };
     let currentQuestion = null;
     let usedQuestions = { low: [], mid: [], high: [] }; 
 
@@ -169,7 +210,6 @@
             document.getElementById('lives-container').style.display = 'inline';
             document.getElementById('timer-bar-bg').style.display = 'none';
         }
-
         nextQuestion();
     }
 
@@ -192,31 +232,20 @@
 
     function nextQuestion() {
         if(state.isOver) return;
-        
         const pool = DB[state.grade];
         if (!pool || pool.length === 0) { alert("題庫載入錯誤"); return; }
-
         const used = usedQuestions[state.grade];
-
         if (used.length >= pool.length) {
             if(state.grade === 'low') gameOver("太強了！全對通關！");
-            else { alert("本區題目全部答完！即將重置..."); usedQuestions[state.grade] = []; }
+            else { alert("本區題目全部答完！即將重置..."); usedQuestions[state.grade] = []; setTimeout(nextQuestion, 100); return; }
         }
-
         let randIdx;
         let safetyCounter = 0;
-        do {
-            randIdx = Math.floor(Math.random() * pool.length);
-            safetyCounter++;
-            if(safetyCounter > 100) break;
-        } while (used.includes(randIdx));
-
+        do { randIdx = Math.floor(Math.random() * pool.length); safetyCounter++; if(safetyCounter > 100) break; } while (used.includes(randIdx));
         usedQuestions[state.grade].push(randIdx);
         currentQuestion = pool[randIdx];
-        
         document.getElementById('subj-badge').innerText = currentQuestion.s;
         document.getElementById('q-text').innerText = currentQuestion.q;
-
         if (state.grade !== 'low') {
             const panel = document.getElementById('mcq-panel');
             panel.innerHTML = '';
@@ -236,7 +265,6 @@
         if(state.isOver) return;
         let isCorrect = (ans === currentQuestion.a);
         showFeedback(isCorrect);
-
         if (isCorrect) {
             if(state.grade === 'low') state.score++; else state.score += 10;
             document.getElementById('score-val').innerText = state.score;
@@ -253,7 +281,7 @@
         const el = document.getElementById(id);
         el.style.display = 'block';
         el.style.animation = 'none';
-        el.offsetHeight; 
+        el.offsetHeight;
         el.style.animation = 'popIn 0.5s';
         setTimeout(() => { el.style.display = 'none'; }, 600);
     }
@@ -269,17 +297,43 @@
         document.getElementById('res-score').innerText = state.score;
     }
 
+    // 🔥 V38 專屬修改：存檔時加上 'quiz_' 前綴
     function submitScore() {
         const n = document.getElementById('input-name').value.trim();
         if(!n) { alert("請輸入名字"); return; }
-        fetch(API_URL, { method:'POST', body:JSON.stringify({type:'record', name:n, time:state.score, grade:state.grade}), headers:{"Content-Type":"text/plain"} })
-        .then(r=>r.json()).then(d=>{ alert("✅ 上傳成功"); location.reload(); }).catch(e=>{ alert("上傳失敗"); });
+        
+        const btn = document.querySelector('#result-modal button');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "上傳中...";
+
+        // 為了不跟 V34 衝突，這裡使用 "quiz_" 前綴
+        const dbGrade = "quiz_" + state.grade;
+
+        fetch(API_URL, { 
+            method:'POST', 
+            // 知識殿堂要用 desc (分數越高越好)
+            body:JSON.stringify({type:'record', name:n, time:state.score, grade:dbGrade, sort:'desc'}), 
+            headers:{"Content-Type":"text/plain"} 
+        })
+        .then(r=>r.json())
+        .then(d=>{ 
+            alert("✅ 上傳成功"); location.reload(); 
+        })
+        .catch(e=>{ 
+            alert("上傳失敗"); btn.disabled = false; btn.innerText = originalText;
+        });
     }
 
     function openRank() { document.getElementById('rank-modal').classList.add('active'); loadRank(state.grade || 'low'); }
+    
+    // 🔥 V38 專屬修改：讀取時也加上 'quiz_' 前綴
     function loadRank(grade) {
-        document.getElementById('rank-list').innerHTML = "載入中...";
-        fetch(API_URL + `?action=getRank&grade=${grade}&sort=desc`)
+        document.getElementById('rank-list').innerHTML = '<div style="text-align:center; padding:20px;">資料讀取中...</div>';
+        
+        const dbGrade = "quiz_" + grade;
+
+        fetch(API_URL + `?action=getRank&grade=${dbGrade}&sort=desc`)
             .then(r=>r.json())
             .then(d=>{
                 const div = document.getElementById('rank-list');
@@ -290,6 +344,9 @@
                     let unit = (grade === 'low') ? "題" : "分";
                     div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.score}${unit}</span></div>`;
                 });
+            })
+            .catch(e => {
+                document.getElementById('rank-list').innerHTML = '<div style="text-align:center; padding:20px; color:red;">讀取失敗</div>';
             });
     }
 </script>
