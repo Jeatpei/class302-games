@@ -6,63 +6,29 @@
     <title>傑特佩小遊戲網</title>
     <style>
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #f0f2f5; color: #333; }
-        
-        /* 標題區 */
-        .hero {
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
-            color: white; padding: 40px 20px; text-align: center;
-            border-radius: 0 0 30px 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+        .hero { background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; padding: 40px 20px; text-align: center; border-radius: 0 0 30px 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .hero h1 { margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
         .hero p { margin-top: 10px; font-size: 1.1rem; opacity: 0.9; }
-
-        /* 選單容器 */
-        .menu-container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px; padding: 20px; max-width: 1000px; margin: 0 auto;
-        }
-
-        /* 卡片設計 */
-        .menu-card {
-            background: white; border-radius: 20px; padding: 25px;
-            text-decoration: none; color: #333; transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid transparent;
-            display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden;
-        }
+        .menu-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .menu-card { background: white; border-radius: 20px; padding: 25px; text-decoration: none; color: #333; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
         .menu-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-
         .icon { font-size: 3.5rem; margin-bottom: 15px; }
         .card-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
         .card-desc { font-size: 0.95rem; color: #666; text-align: center; line-height: 1.6; }
-
-        /* === 特殊卡片樣式 === */
         
-        /* 1. 簡單遊戲區 */
-        .card-simple:hover { border-color: #ff9800; }
-        .card-simple .icon { text-shadow: 2px 2px 0 #ffe0b2; }
-
-        /* 2. 知識殿堂 (本次重點) */
-        .card-know:hover { border-color: #2196f3; }
-        .card-know .icon { text-shadow: 2px 2px 0 #bbdefb; }
-        .card-tag { 
-            background: #e3f2fd; color: #1565c0; padding: 5px 10px; 
-            border-radius: 15px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;
-        }
-
-        /* 3. 闖關升級地圖 (新增道具說明) */
+        /* 卡片配色 */
+        .card-simple:hover { border-color: #ff9800; } .card-simple .icon { text-shadow: 2px 2px 0 #ffe0b2; }
+        .card-know:hover { border-color: #2196f3; } .card-know .icon { text-shadow: 2px 2px 0 #bbdefb; }
         .card-adv { background: linear-gradient(to bottom, #fff, #fffde7); border: 2px solid #fbc02d; }
         .card-adv:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(251, 192, 45, 0.4); }
         
-        /* 道具說明區 */
-        .item-guide {
-            margin-top: 15px; background: rgba(0,0,0,0.05); padding: 10px;
-            border-radius: 10px; width: 100%; font-size: 0.85rem; color: #555;
-            text-align: left;
-        }
+        /* 第4區塊配色 */
+        .card-upload:hover { border-color: #9c27b0; } .card-upload .icon { text-shadow: 2px 2px 0 #e1bee7; }
+
+        .item-guide { margin-top: 15px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; width: 100%; font-size: 0.85rem; color: #555; text-align: left; }
         .item-row { display: flex; align-items: center; margin: 5px 0; }
         .item-icon-small { font-size: 1.2rem; margin-right: 8px; width: 25px; text-align: center; }
-
-        /* Footer */
+        .card-tag { background: #e3f2fd; color: #1565c0; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
         .footer { text-align: center; padding: 20px; color: #aaa; font-size: 0.8rem; margin-top: 20px; }
     </style>
 </head>
@@ -82,21 +48,16 @@
     </a>
 
     <a href="knowledge_games.html" class="menu-card card-know">
-        <div class="card-tag">隨機題庫系統 V37</div>
+        <div class="card-tag">隨機題庫 V38</div>
         <div class="icon">📚</div>
         <div class="card-title">小學知識殿堂</div>
-        <div class="card-desc">
-            國語．英文．數學．社會．自然<br>
-            <b>每次進入題目都不同！</b><br>
-            挑戰你的知識極限。
-        </div>
+        <div class="card-desc">國語．英文．數學．社會．自然<br>每次進入題目都不同！</div>
     </a>
 
     <a href="adventure_map.html" class="menu-card card-adv">
         <div class="icon">🏰</div>
         <div class="card-title">闖關升級地圖</div>
         <div class="card-desc">收集道具．挑戰終點．獲得獎章</div>
-        
         <div class="item-guide">
             <div style="font-weight:bold; margin-bottom:5px; text-align:center;">📦 道具攻略：</div>
             <div class="item-row"><span class="item-icon-small">⏳</span> <span>沙漏：時間 -10 秒 (加分)</span></div>
@@ -105,11 +66,15 @@
         </div>
     </a>
 
+    <a href="upload_game.html" class="menu-card card-upload">
+        <div class="icon">📤</div>
+        <div class="card-title">遊戲上傳</div>
+        <div class="card-desc">將你設計的 Scratch 或 HTML 遊戲上傳到這裡。</div>
+    </a>
+
 </div>
 
-<div class="footer">
-    &copy; 2025 傑特佩小學版 v2.0
-</div>
+<div class="footer">&copy; 2025 傑特佩小學版 v2.1</div>
 
 </body>
 </html>
