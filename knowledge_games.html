@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>傑特佩知識殿堂</title>
+    <style>
+        body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; overflow: hidden; background: #000; color: #333; user-select: none; }
+
+        /* === 📚 背景設定 (讀取本地圖片) === */
+        #bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('bg_knowledge.jpg'); /* 讀取本地圖片 */
+            background-size: cover; background-position: center;
+            filter: blur(3px) brightness(0.6); /* 稍微模糊變暗，讓題目更清楚 */
+            z-index: -1;
+        }
+
+        /* === UI 介面 === */
+        .container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; position: relative;
+        }
+
+        /* 標題區 */
+        .header {
+            position: absolute; top: 20px; width: 100%; text-align: center; color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8); z-index: 10;
+        }
+        .header h1 { margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
+        .header p { margin: 5px 0 0; color: #ddd; font-size: 1rem; }
+
+        /* === 1. 年級選擇選單 === */
+        #grade-menu {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center; width: 80%; max-width: 400px;
+            border: 1px solid #fff;
+        }
+        .g-btn {
+            display: block; width: 100%; padding: 15px; margin: 15px 0;
+            font-size: 1.4rem; font-weight: bold; border: none; border-radius: 50px;
+            cursor: pointer; transition: 0.2s; color: white;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+        }
+        .g-btn:active { transform: translateY(5px); box-shadow: none; }
+        .btn-low { background: linear-gradient(to right, #4caf50, #81c784); } /* 綠 */
+        .btn-mid { background: linear-gradient(to right, #ff9800, #ffb74d); } /* 橘 */
+        .btn-high { background: linear-gradient(to right, #2196f3, #64b5f6); } /* 藍 */
+
+        /* === 2. 遊戲主畫面 === */
+        #game-interface { display: none; width: 90%; max-width: 600px; animation: slideUp 0.5s; }
+        
+        /* 題目卡片 */
+        .quiz-card {
+            background: #fff; border-radius: 20px; padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            text-align: center; position: relative;
+            min-height: 250px; display: flex; flex-direction: column; justify-content: center;
+        }
+        .subject-badge {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: #333; color: #fff; padding: 5px 20px; border-radius: 20px;
+            font-weight: bold; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .q-text { font-size: 1.8rem; font-weight: bold; line-height: 1.4; margin: 20px 0; color: #2c3e50; }
+        
+        /* === 模式 A: 是非題按鈕 (低年級) === */
+        .tf-area { display: flex; gap: 20px; margin-top: 20px; justify-content: center; }
+        .tf-btn {
+            width: 100px; height: 100px; border-radius: 50%; border: 5px solid #fff;
+            font-size: 3rem; font-weight: bold; cursor: pointer; color: white;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.1s;
+        }
+        .tf-btn:active { transform: scale(0.9); }
+        .btn-o { background: #4caf50; }
+        .btn-x { background: #f44336; }
+
+        /* === 模式 B: 四選一按鈕 (中高年級) === */
+        .mcq-area { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .mcq-btn {
+            padding: 20px; font-size: 1.2rem; font-weight: bold; border: none;
+            background: #fff; color: #333; border-radius: 15px;
+            cursor: pointer; box-shadow: 0 4px 0 #ccc; border: 2px solid #eee;
+            transition: 0.1s;
+        }
+        .mcq-btn:active { transform: translateY(4px); box-shadow: none; background: #eee; }
+
+        /* === 記分板 === */
+        .score-board {
+            display: flex; justify-content: space-between; width: 100%; padding: 0 10px;
+            margin-bottom: 10px; color: white; font-weight: bold; font-size: 1.2rem; text-shadow: 0 1px 2px #000;
+        }
+
+        /* 導航列 */
+        #jetpay-navbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; height: 65px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 50px; border: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 9999; } .nav-item { text-decoration: none; color: #95a5a6; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; transition: 0.2s; } .nav-icon { font-size: 1.6rem; margin-bottom: 2px; } .nav-item:hover { color: #2c3e50; transform: translateY(-2px); } .nav-item-special { color: #e67e22; font-weight: bold; } .nav-item-special .nav-icon { background: #e67e22; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); margin-top: -20px; border: 4px solid white; }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* 反饋動畫 */
+        .feedback-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5rem; z-index: 100; text-shadow: 0 5px 20px rgba(0,0,0,0.5); display: none; animation: popIn 0.5s; }
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); } 80% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1); } }
+    </style>
+</head>
+<body>
+
+<div id="bg-layer"></div>
+
+<div class="header">
+    <h1>知識殿堂</h1>
+    <p>智慧是通往未來的鑰匙</p>
+</div>
+
+<div class="container">
+    
+    <div id="grade-menu">
+        <h2 style="margin-top:0; color:#555;">請選擇你的年級</h2>
+        <button class="g-btn btn-low" onclick="startGame('low')">👶 低年級 (是非題)</button>
+        <button class="g-btn btn-mid" onclick="startGame('mid')">👦 中年級 (挑戰賽)</button>
+        <button class="g-btn btn-high" onclick="startGame('high')">🧑‍🎓 高年級 (大師賽)</button>
+    </div>
+
+    <div id="game-interface">
+        <div class="score-board">
+            <span id="grade-label">低年級</span>
+            <span>得分: <span id="score">0</span></span>
+        </div>
+
+        <div class="quiz-card">
+            <div class="subject-badge" id="subj-badge">數學</div>
+            <div class="q-text" id="q-text">題目載入中...</div>
+        </div>
+
+        <div id="tf-panel" class="tf-area" style="display:none;">
+            <div class="tf-btn btn-o" onclick="checkAns(true)">O</div>
+            <div class="tf-btn btn-x" onclick="checkAns(false)">X</div>
+        </div>
+
+        <div id="mcq-panel" class="mcq-area" style="display:none;">
+            </div>
+        
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:rgba(255,255,255,0.2); color:fff; border:1px solid white; border-radius:20px; cursor:pointer;">退出挑戰</button>
+    </div>
+
+</div>
+
+<div id="fb-correct" class="feedback-popup">✅</div>
+<div id="fb-wrong" class="feedback-popup">❌</div>
+
+<div id="jetpay-navbar">
+    <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span>首頁</span></a>
+    <a href="simple_games.html" class="nav-item"><span class="nav-icon">🧩</span><span>簡單</span></a>
+    <a href="adventure_map.html" class="nav-item"><span class="nav-icon">🏰</span><span>闖關</span></a>
+    <a href="knowledge_games.html" class="nav-item nav-item-special"><span class="nav-icon">📚</span><span>知識</span></a>
+    <a href="#" class="nav-item" onclick="alert('排行榜即將開放！')"><span class="nav-icon">🏆</span><span>排行</span></a>
+</div>
+
+<script>
+    // 💡 題目資料庫 (您可以隨時在這裡增加題目)
+    // 格式說明：
+    // Low: { s:科目, q:題目, a:正確答案(true為O, false為X) }
+    // Mid/High: { s:科目, q:題目, o:[選項1, 選項2, 選項3, 選項4], a:正確選項文字 }
+    
+    const DB = {
+        low: [ // 是非題 (答案 true=O, false=X)
+            {s:"生活", q:"紅燈停，綠燈行。", a:true},
+            {s:"生活", q:"過馬路要在車陣中穿梭。", a:false},
+            {s:"數學", q:"5 + 5 = 10", a:true},
+            {s:"數學", q:"三角形有 4 個角。", a:false},
+            {s:"國語", q:"「蘋果」是水果。", a:true},
+            {s:"國語", q:"太陽從西邊升起。", a:false},
+            {s:"自然", q:"冰塊融化會變成水。", a:true},
+            {s:"英文", q:"Apple 是香蕉的意思。", a:false},
+            {s:"生活", q:"睡覺前要刷牙。", a:true},
+            {s:"社會", q:"我們住在月球上。", a:false}
+        ],
+        mid: [ // 四選一
+            {s:"社會", q:"台灣的首都在哪裡？", o:["台北","高雄","台中","台南"], a:"台北"},
+            {s:"數學", q:"8 x 7 = ?", o:["56","48","64","54"], a:"56"},
+            {s:"自然", q:"磁鐵能吸什麼？", o:["鐵釘","木頭","塑膠","紙"], a:"鐵釘"},
+            {s:"國語", q:"守株待__？", o:["兔","虎","豬","龍"], a:"兔"},
+            {s:"英文", q:"Thank you 的意思是？", o:["謝謝","對不起","你好","再見"], a:"謝謝"},
+            {s:"數學", q:"1公里等於幾公尺？", o:["1000","100","10","10000"], a:"1000"},
+            {s:"自然", q:"青蛙小時候叫什麼？", o:["蝌蚪","毛毛蟲","小魚","孑孓"], a:"蝌蚪"},
+            {s:"社會", q:"端午節要吃什麼？", o:["粽子","月餅","湯圓","蛋糕"], a:"粽子"}
+        ],
+        high: [ // 四選一 (較難)
+            {s:"數學", q:"三角形內角和是幾度？", o:["180度","360度","90度","100度"], a:"180度"},
+            {s:"自然", q:"植物進行光合作用需要？", o:["陽光","月光","星光","燈光"], a:"陽光"},
+            {s:"社會", q:"台灣最高的山是？", o:["玉山","雪山","阿里山","陽明山"], a:"玉山"},
+            {s:"國語", q:"哪一個字有錯？", o:["再接再勵","再接再厲","鍥而不捨","堅持到底"], a:"再接再勵"},
+            {s:"英文", q:"Delicious 是什麼意思？", o:["美味的","危險的","生氣的","快樂的"], a:"美味的"},
+            {s:"數學", q:"0.5 + 0.5 = ?", o:["1","0.55","0.1","10"], a:"1"},
+            {s:"自然", q:"月亮繞著誰轉？", o:["地球","太陽","火星","金星"], a:"地球"},
+            {s:"社會", q:"下列哪個是直轄市？", o:["高雄市","基隆市","新竹市","嘉義市"], a:"高雄市"}
+        ]
+    };
+
+    let currentGrade = '';
+    let currentScore = 0;
+    let currentQuestion = null;
+
+    function startGame(grade) {
+        currentGrade = grade;
+        currentScore = 0;
+        document.getElementById('score').innerText = 0;
+        
+        // 切換介面
+        document.getElementById('grade-menu').style.display = 'none';
+        document.getElementById('game-interface').style.display = 'block';
+        
+        // 設定標籤
+        const map = {'low':'👶 低年級','mid':'👦 中年級','high':'🧑‍🎓 高年級'};
+        document.getElementById('grade-label').innerText = map[grade];
+
+        // 依據年級顯示不同按鈕區
+        if(grade === 'low') {
+            document.getElementById('tf-panel').style.display = 'flex';
+            document.getElementById('mcq-panel').style.display = 'none';
+        } else {
+            document.getElementById('tf-panel').style.display = 'none';
+            document.getElementById('mcq-panel').style.display = 'grid';
+        }
+
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        const pool = DB[currentGrade];
+        // 隨機抽題
+        currentQuestion = pool[Math.floor(Math.random() * pool.length)];
+        
+        // 渲染題目
+        document.getElementById('subj-badge').innerText = currentQuestion.s;
+        document.getElementById('q-text').innerText = currentQuestion.q;
+
+        // 如果是中高年級，要渲染選項按鈕
+        if(currentGrade !== 'low') {
+            const mcqPanel = document.getElementById('mcq-panel');
+            mcqPanel.innerHTML = ''; // 清空舊選項
+            
+            // 打亂選項順序
+            let opts = [...currentQuestion.o]; // 複製陣列
+            opts.sort(() => Math.random() - 0.5);
+
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'mcq-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAns(opt);
+                mcqPanel.appendChild(btn);
+            });
+        }
+    }
+
+    function checkAns(userAns) {
+        let isCorrect = false;
+        
+        if(currentGrade === 'low') {
+            // 是非題比對 (true/false)
+            if(userAns === currentQuestion.a) isCorrect = true;
+        } else {
+            // 選擇題比對 (文字)
+            if(userAns === currentQuestion.a) isCorrect = true;
+        }
+
+        // 顯示反饋
+        showFeedback(isCorrect);
+
+        if(isCorrect) {
+            currentScore += 10;
+            document.getElementById('score').innerText = currentScore;
+            setTimeout(nextQuestion, 800); // 答對延遲換題
+        } else {
+            // 答錯可以選擇扣分或震動，這裡暫時不扣分，直接換題
+            setTimeout(nextQuestion, 800);
+        }
+    }
+
+    function showFeedback(isCorrect) {
+        const id = isCorrect ? 'fb-correct' : 'fb-wrong';
+        const el = document.getElementById(id);
+        el.style.display = 'block';
+        // 重新觸發動畫
+        el.style.animation = 'none';
+        el.offsetHeight; /* trigger reflow */
+        el.style.animation = 'popIn 0.5s';
+        
+        setTimeout(() => { el.style.display = 'none'; }, 600);
+    }
+
+</script>
+</body>
+</html>
