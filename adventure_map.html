@@ -3,96 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：時空穿越者 V25</title>
+    <title>傑特佩大冒險：全科挑戰版 (V27)</title>
     <style>
         :root { --locked: #444; --unlocked: #29b6f6; --cleared: #fbc02d; }
-        body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #222; color: white; user-select: none; overflow: hidden; }
+        body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
 
-        /* === 🗺️ 地圖視覺優化 (解決問題1) === */
-        #map-viewport {
-            width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden; position: relative; scroll-behavior: smooth;
-            padding-bottom: 80px;
-        }
-
-        /* 五大世界背景紋理 */
-        .zone { position: absolute; width: 100%; height: 700px; left: 0; z-index: 0; border-top: 5px solid rgba(0,0,0,0.2); }
+        /* 地圖視窗 */
+        #map-viewport { width: 100%; height: 100vh; overflow-y: auto; overflow-x: hidden; position: relative; scroll-behavior: smooth; padding-bottom: 80px; background: #111; }
         
-        /* World 1: 迷霧森林 (綠色 + 圓點樹葉) */
-        .zone-1 { top: 2800px; background: #2e7d32; background-image: radial-gradient(#4caf50 15%, transparent 16%); background-size: 30px 30px; }
-        /* World 2: 烈日沙漠 (黃色 + 波紋) */
-        .zone-2 { top: 2100px; background: #f57f17; background-image: repeating-linear-gradient(45deg, #ffb74d 0, #ffb74d 10px, #f57f17 10px, #f57f17 20px); }
-        /* World 3: 極地冰原 (藍色 + 晶體) */
-        .zone-3 { top: 1400px; background: #0277bd; background-image: linear-gradient(30deg, #4fc3f7 12%, transparent 12.5%, transparent 87%, #4fc3f7 87.5%, #4fc3f7), linear-gradient(150deg, #4fc3f7 12%, transparent 12.5%, transparent 87%, #4fc3f7 87.5%, #4fc3f7); background-size: 40px 70px; }
-        /* World 4: 熔岩火山 (深紅 + 裂痕) */
-        .zone-4 { top: 700px; background: #b71c1c; background-image: linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.3) 50%); background-size: 50px 50px; }
-        /* World 5: 機械城堡 (灰色 + 網格) */
-        .zone-5 { top: 0px; background: #37474f; background-image: linear-gradient(#546e7a 1px, transparent 1px), linear-gradient(90deg, #546e7a 1px, transparent 1px); background-size: 40px 40px; }
+        /* 背景圖 (含遮罩) */
+        .zone { position: absolute; width: 100%; height: 700px; left: 0; z-index: 0; background-size: cover; background-position: center; border-top: 5px solid rgba(0,0,0,0.5); box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.4); }
+        .zone-1 { top: 2800px; background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000&auto=format&fit=crop'); }
+        .zone-2 { top: 2100px; background-image: url('https://images.unsplash.com/photo-1509316709124-e333e8293633?q=80&w=1000&auto=format&fit=crop'); box-shadow: inset 0 0 0 1000px rgba(255, 152, 0, 0.2); }
+        .zone-3 { top: 1400px; background-image: url('https://images.unsplash.com/photo-1516975908413-5af25103bb9e?q=80&w=1000&auto=format&fit=crop'); box-shadow: inset 0 0 0 1000px rgba(0, 100, 255, 0.2); }
+        .zone-4 { top: 700px; background-image: url('https://images.unsplash.com/photo-1462331940025-496dfa712568?q=80&w=1000&auto=format&fit=crop'); box-shadow: inset 0 0 0 1000px rgba(255, 0, 0, 0.3); }
+        .zone-5 { top: 0px; background-image: url('https://images.unsplash.com/photo-1599692673087-6474156956b9?q=80&w=1000&auto=format&fit=crop'); }
 
-        .zone-label {
-            position: absolute; top: 20px; left: 20px; font-size: 2.5rem; font-weight: bold;
-            color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 5px;
-        }
-
+        .zone-label { position: absolute; top: 30px; left: 30px; font-size: 2.2rem; font-weight: bold; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 10px rgba(0,0,0,0.8); }
+        
         /* 關卡節點 */
-        .level-node {
-            position: absolute; width: 55px; height: 55px; border-radius: 50%;
-            background: var(--locked); border: 4px solid #fff; left: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.2rem; cursor: pointer; z-index: 10;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s;
-        }
-        .level-node.unlocked { background: var(--unlocked); animation: pulse 1.5s infinite; border-color: white; }
-        .level-node.cleared { background: var(--cleared); color: #333; border-color: #fffde7; }
+        .level-node { position: absolute; width: 60px; height: 60px; border-radius: 50%; background: var(--locked); border: 3px solid rgba(255,255,255,0.5); left: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.3rem; cursor: pointer; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.7); transition: 0.2s; backdrop-filter: blur(5px); }
+        .level-node.unlocked { background: var(--unlocked); animation: pulse 1.5s infinite; border-color: white; box-shadow: 0 0 20px var(--unlocked); }
+        .level-node.cleared { background: var(--cleared); color: #333; border-color: #fff; }
+        .level-node:active { transform: scale(0.9); }
         
         #path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 3500px; pointer-events: none; z-index: 5; }
-        path { fill: none; stroke: rgba(255,255,255,0.6); stroke-width: 8; stroke-dasharray: 15; stroke-linecap: round; }
+        path { fill: none; stroke: rgba(255,255,255,0.7); stroke-width: 6; stroke-dasharray: 10; stroke-linecap: round; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
 
-        /* === 初始選擇分級視窗 (解決問題3) === */
-        .intro-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #222;
-            z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .grade-btn {
-            width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px;
-            font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s;
-        }
-        .g-low { background: #4caf50; box-shadow: 0 5px 0 #2e7d32; }
-        .g-mid { background: #ff9800; box-shadow: 0 5px 0 #e65100; }
-        .g-high { background: #f44336; box-shadow: 0 5px 0 #c62828; }
-        .grade-btn:active { transform: translateY(5px); box-shadow: none; }
+        /* UI 元件 */
+        .intro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .grade-btn { width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; }
+        .g-low { background: #4caf50; } .g-mid { background: #ff9800; } .g-high { background: #f44336; }
+        
+        #hud { position: fixed; top: 0; left: 0; width: 100%; padding: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #333; }
+        .status-box { font-size: 0.9rem; display: flex; gap: 12px; color: #fff; align-items: center; }
+        .item-icon { position: relative; font-size: 1.4rem; margin-right: 5px; cursor: pointer; } 
+        .item-count { position: absolute; bottom: -2px; right: -5px; background: #e74c3c; font-size: 0.7rem; padding: 2px 5px; border-radius: 10px; border:1px solid white; }
+        .grade-badge { padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
-        /* === HUD & Game UI === */
-        #hud {
-            position: fixed; top: 0; left: 0; width: 100%; padding: 10px;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100;
-            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
-        }
-        .status-box { font-size: 0.9rem; display: flex; gap: 10px; color: #fff; }
-        .item-icon { position: relative; font-size: 1.2rem; margin-right: 5px; cursor: pointer; }
-        .item-count { position: absolute; bottom: -5px; right: -5px; background: red; font-size: 0.6rem; padding: 1px 4px; border-radius: 10px; }
-        .grade-badge { padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 200; flex-direction: column; backdrop-filter: blur(5px); }
+        .modal.active { display: flex; animation: fadeIn 0.3s; } @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        
+        .game-board { background: #eee; color: #333; width: 90%; max-width: 450px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .game-content { min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; margin: 20px 0; color:#2c3e50; }
+        .subj-tag { font-size: 0.9rem; background: #333; color: white; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
+        
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .opt-btn { padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-size: 1.3rem; cursor: pointer; font-weight:bold; box-shadow: 0 4px 0 #2980b9; transition:0.1s; } 
+        .opt-btn:active{transform:translateY(4px); box-shadow:none;}
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 200; flex-direction: column; }
-        .modal.active { display: flex; }
-        .game-board { background: white; color: #333; width: 90%; max-width: 450px; border-radius: 15px; padding: 20px; text-align: center; }
-        .game-content { min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; margin: 20px 0; }
-        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .opt-btn { padding: 15px; background: #2196f3; color: white; border: none; border-radius: 10px; font-size: 1.2rem; cursor: pointer; }
+        .rank-tabs { display: flex; gap: 10px; margin-bottom: 15px; background:#ddd; padding:5px; border-radius:10px; }
+        .rt-btn { flex: 1; padding: 10px; background: transparent; border: none; cursor: pointer; font-weight: bold; border-radius:8px; color:#777; transition:0.2s; }
+        .rt-btn.active { background: #fff; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .rank-row { display: flex; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #ddd; font-size: 1rem; }
+        .rank-row:first-child { color: #d35400; font-weight: bold; font-size: 1.2rem; }
 
-        /* 排行榜分頁 */
-        .rank-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-        .rt-btn { flex: 1; padding: 8px; background: #eee; border: none; cursor: pointer; font-weight: bold; }
-        .rt-btn.active { background: #333; color: white; }
-        .rank-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .rank-row:first-child { color: #d35400; font-weight: bold; font-size: 1.1rem; }
-
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(41, 182, 246, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0); } }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(41, 182, 246, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(41, 182, 246, 0); } }
     </style>
 </head>
 <body>
 
 <div class="intro-modal" id="intro-screen">
-    <h1 style="color:#fff; margin-bottom:30px;">🚀 請選擇挑戰等級</h1>
+    <h1 style="color:#fff; margin-bottom:10px; text-shadow:0 2px 10px rgba(0,0,0,0.5);">🚀 傑特佩大冒險</h1>
+    <p style="color:#aaa; margin-bottom:30px;">請選擇你的挑戰等級</p>
     <button class="grade-btn g-low" onclick="setGrade('low')">👶 低年級 (1-2)</button>
     <button class="grade-btn g-mid" onclick="setGrade('mid')">👦 中年級 (3-4)</button>
     <button class="grade-btn g-high" onclick="setGrade('high')">🧑‍🎓 高年級 (5-6)</button>
@@ -122,296 +95,241 @@
 
 <div class="modal" id="game-modal">
     <div class="game-board">
-        <div style="display:flex; justify-content:space-between; font-weight:bold;">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem; margin-bottom:5px;">
             <span id="lv-title">Level 1</span>
-            <span id="q-timer" style="color:red;">30s</span>
+            <span id="q-timer" style="color:#e74c3c;">30s</span>
         </div>
-        <div style="height:5px; background:#eee; margin:10px 0;"><div id="t-bar" style="height:100%; width:100%; background:red;"></div></div>
-        <div class="game-content" id="q-content">?</div>
+        <div style="height:8px; background:#ddd; border-radius:4px; overflow:hidden;"><div id="t-bar" style="height:100%; width:100%; background:#e74c3c; transition:width 1s linear;"></div></div>
+        
+        <div class="game-content">
+            <div id="subj-tag" class="subj-tag">數學</div>
+            <div id="q-content">?</div>
+        </div>
+        
         <div class="grid-options" id="q-opts"></div>
-        <div style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
-            <button onclick="useItem('time')" style="padding:5px 10px;">⏳</button>
-            <button onclick="useItem('shield')" style="padding:5px 10px;">🛡️</button>
-            <button onclick="useItem('key')" style="padding:5px 10px;">🔑</button>
+        <div style="margin-top:25px; display:flex; justify-content:center; gap:15px; border-top:2px solid #eee; padding-top:20px;">
+            <div class="item-icon" onclick="useItem('time')" style="color:#333; font-size:1.8rem;">⏳<span class="item-count" id="g-c-time">0</span></div>
+            <div class="item-icon" onclick="useItem('shield')" style="color:#333; font-size:1.8rem;">🛡️<span class="item-count" id="g-c-shield">0</span></div>
+            <div class="item-icon" onclick="useItem('key')" style="color:#333; font-size:1.8rem;">🔑<span class="item-count" id="g-c-key">0</span></div>
         </div>
     </div>
 </div>
 
 <div class="modal" id="win-modal">
     <div class="game-board">
-        <h1>🏆 挑戰成功！</h1>
-        <p>等級：<span id="final-grade"></span></p>
-        <p>總耗時：<span id="final-time" style="font-size:2rem; color:red;"></span> 秒</p>
-        <input type="text" id="input-name" placeholder="輸入你的名字" style="padding:10px; font-size:1.2rem; width:80%;">
+        <h1 style="color:#27ae60;">🏆 挑戰成功！</h1>
+        <p>等級：<span id="final-grade" style="font-weight:bold;"></span></p>
+        <p>總耗時：<span id="final-time" style="font-size:2.5rem; color:#e74c3c; font-weight:bold;"></span> 秒</p>
+        <input type="text" id="input-name" placeholder="輸入你的名字 (例: 401小明)" style="padding:12px; font-size:1.1rem; width:90%; border:2px solid #ddd; border-radius:8px; text-align:center;">
         <br><br>
-        <button class="opt-btn" onclick="submitScore()">上傳英雄榜</button>
-        <button class="opt-btn" style="background:#777; margin-top:10px;" onclick="location.reload()">回首頁</button>
+        <button class="opt-btn" style="width:100%; background:#27ae60; box-shadow:0 4px 0 #219a52;" onclick="submitScore()">上傳英雄榜</button>
+        <button class="opt-btn" style="width:100%; background:#7f8c8d; margin-top:15px; box-shadow:0 4px 0 #636e72;" onclick="location.reload()">回首頁重置</button>
     </div>
 </div>
 
 <div class="modal" id="rank-modal">
-    <div class="game-board" style="max-height:80vh; overflow-y:auto;">
-        <h2>🏆 英雄榜</h2>
-        <div class="rank-tabs">
-            <button class="rt-btn active" onclick="loadRank('low', this)">低年級</button>
-            <button class="rt-btn" onclick="loadRank('mid', this)">中年級</button>
-            <button class="rt-btn" onclick="loadRank('high', this)">高年級</button>
+    <div class="game-board" style="max-height:80vh; overflow-y:auto; padding:0;">
+        <div style="padding:20px; background:#2c3e50; color:white; border-radius:20px 20px 0 0;">
+            <h2 style="margin:0;">🏆 冒險英雄榜</h2>
         </div>
-        <div id="rank-list" style="text-align:left;">載入中...</div>
-        <button class="opt-btn" style="background:#555; margin-top:20px; font-size:1rem; padding:10px;" onclick="document.getElementById('rank-modal').classList.remove('active')">關閉</button>
+        <div style="padding:20px;">
+            <div class="rank-tabs">
+                <button class="rt-btn active" onclick="loadRank('low', this)">👶 低年級</button>
+                <button class="rt-btn" onclick="loadRank('mid', this)">👦 中年級</button>
+                <button class="rt-btn" onclick="loadRank('high', this)">🧑‍🎓 高年級</button>
+            </div>
+            <div id="rank-list" style="text-align:left; min-height:200px;">載入中...</div>
+            <button class="opt-btn" style="background:#7f8c8d; margin-top:20px; font-size:1rem; padding:12px; width:100%; box-shadow:0 4px 0 #636e72;" onclick="document.getElementById('rank-modal').classList.remove('active')">關閉</button>
+        </div>
     </div>
 </div>
 
-<style> body { padding-bottom: 70px !important; } #jetpay-navbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #ddd; display: flex; justify-content: space-around; align-items: center; z-index: 9999; } .nav-item { text-decoration: none; color: #555; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; } .nav-icon { font-size: 1.5rem; } </style>
+<style> body { padding-bottom: 80px !important; } #jetpay-navbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; height: 65px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 50px; border: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 9999; } .nav-item { text-decoration: none; color: #95a5a6; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; transition: 0.2s; } .nav-icon { font-size: 1.6rem; margin-bottom: 2px; } .nav-item:hover { color: #2c3e50; transform: translateY(-2px); } .nav-item-special { color: #e67e22; font-weight: bold; } .nav-item-special .nav-icon { background: #e67e22; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); margin-top: -20px; border: 4px solid white; } </style>
 <div id="jetpay-navbar">
     <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span>首頁</span></a>
+    <a href="simple_games.html" class="nav-item"><span class="nav-icon">🧩</span><span>簡單</span></a>
+    <a href="adventure_map.html" class="nav-item nav-item-special"><span class="nav-icon">🏰</span><span>闖關</span></a>
+    <a href="knowledge_games.html" class="nav-item"><span class="nav-icon">📚</span><span>知識</span></a>
     <a href="#" class="nav-item" onclick="openRank()"><span class="nav-icon">🏆</span><span>排行</span></a>
 </div>
 
 <script>
-    // 🔴 🔴 🔴 記得換 GAS 網址 🔴 🔴 🔴
+    // 🔴 🔴 🔴 請將此處換成您 "重新部署" 後的 GAS 網址 (V3.1) 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
     const TOTAL_LEVELS = 30;
-    let state = {
-        grade: 'mid', // 預設
-        level: 1,
-        items: { time: 1, shield: 1, key: 0 },
-        totalTime: 0,
-        timer: null,
-        inGame: false,
-        shieldOn: false
+    let state = { grade: 'mid', level: 1, items: { time: 2, shield: 2, key: 1 }, totalTime: 0, timer: null, inGame: false, shieldOn: false };
+
+    // --- 題庫資料 (全科目) ---
+    const DB = {
+        low: [
+            {t:"數學", q:"5 + 3 = ?", a:"8", o:["8","7","9","6"]},
+            {t:"數學", q:"10 - 4 = ?", a:"6", o:["6","5","4","7"]},
+            {t:"生活", q:"紅燈要？", a:"停", o:["停","走","跳","跑"]},
+            {t:"國語", q:"「天」的部首？", a:"大", o:["大","一","二","人"]},
+            {t:"自然", q:"太陽從哪邊升起？", a:"東邊", o:["東邊","西邊","北邊","南邊"]},
+            {t:"英文", q:"Apple 是？", a:"蘋果", o:["蘋果","香蕉","橘子","芭樂"]}
+        ],
+        mid: [
+            {t:"數學", q:"7 x 8 = ?", a:"56", o:["56","48","64","54"]},
+            {t:"社會", q:"我們住在？", a:"台灣", o:["台灣","美國","日本","月球"]},
+            {t:"自然", q:"磁鐵吸什麼？", a:"鐵釘", o:["鐵釘","木頭","塑膠","紙"]},
+            {t:"英文", q:"Dog 是？", a:"狗", o:["狗","貓","豬","鳥"]},
+            {t:"國語", q:"成語：一__驚人", a:"鳴", o:["鳴","名","民","明"]},
+            {t:"社會", q:"寫信要去？", a:"郵局", o:["郵局","警察局","消防隊","銀行"]}
+        ],
+        high: [
+            {t:"數學", q:"25 x 4 + 10 = ?", a:"110", o:["110","100","90","120"]},
+            {t:"社會", q:"台灣最高的山？", a:"玉山", o:["玉山","阿里山","陽明山","雪山"]},
+            {t:"自然", q:"植物行什麼作用？", a:"光合作用", o:["光合作用","呼吸作用","消化作用","發酵作用"]},
+            {t:"英文", q:"Beautiful 是？", a:"美麗的", o:["美麗的","醜陋的","生氣的","快樂的"]},
+            {t:"國語", q:"哪一個字有錯？", a:"固執己見", o:["固執己見","固執己見(無錯)","固執已見","故執己見"]}, // 修正題目邏輯
+            {t:"社會", q:"鄭成功趕走誰？", a:"荷蘭人", o:["荷蘭人","西班牙人","日本人","法國人"]}
+        ]
     };
 
-    // 1. 設定年級
     function setGrade(g) {
         state.grade = g;
         document.getElementById('intro-screen').style.display = 'none';
         document.getElementById('hud').style.display = 'flex';
-        
-        // 設定徽章顏色
-        const badge = document.getElementById('grade-display');
         const map = {'low':'👶 低年級','mid':'👦 中年級','high':'🧑‍🎓 高年級'};
         const color = {'low':'#4caf50','mid':'#ff9800','high':'#f44336'};
-        badge.innerText = map[g];
-        badge.style.background = color[g];
-
-        // 讀取存檔 (分開存)
-        loadProgress(g);
-        renderMap();
-        updateHUD();
-        
-        setTimeout(() => {
-            const curr = document.querySelector('.level-node.unlocked');
-            if(curr) curr.scrollIntoView({block:"center", behavior:"smooth"});
-        }, 500);
+        document.getElementById('grade-display').innerText = map[g];
+        document.getElementById('grade-display').style.background = color[g];
+        loadProgress(g); renderMap(); updateHUD();
+        setTimeout(() => { const c = document.querySelector('.level-node.unlocked'); if(c) c.scrollIntoView({block:"center",behavior:"smooth"}); }, 500);
     }
 
-    // 2. 地圖渲染
     function renderMap() {
-        const con = document.getElementById('nodes-container');
-        con.innerHTML = '';
+        const con = document.getElementById('nodes-container'); con.innerHTML = '';
         let d = "M 50% 3500";
         for(let i=1; i<=TOTAL_LEVELS; i++) {
-            let y = 3500 - (i*110);
-            let x = 50 + Math.sin(i)*30;
-            d += ` L ${x}% ${y}`;
-            
+            let y = 3500 - (i*110); let x = 50 + Math.sin(i)*30; d += ` L ${x}% ${y}`;
             const n = document.createElement('div');
             n.className = `level-node ${i<state.level?'cleared':(i==state.level?'unlocked':'')}`;
-            n.style.left = `calc(${x}% - 27px)`;
-            n.style.top = `${y}px`;
-            n.innerText = i;
+            n.style.left = `calc(${x}% - 30px)`; n.style.top = `${y}px`; n.innerText = i;
             if(i <= state.level) n.onclick = () => startLevel(i);
             con.appendChild(n);
         }
         document.getElementById('map-path').setAttribute('d', d.replace(/50%/g, window.innerWidth/2));
     }
 
-    // 3. 遊戲邏輯 (分級題目)
     function startLevel(lv) {
         if(lv > state.level) return;
-        state.inGame = true;
-        state.shieldOn = false;
+        state.inGame = true; state.shieldOn = false;
         document.getElementById('game-modal').classList.add('active');
         document.getElementById('lv-title').innerText = `Level ${lv}`;
-        
         genQuestion(lv);
-        
-        let t = 30;
-        document.getElementById('q-timer').innerText = t;
+        let t = 30; document.getElementById('q-timer').innerText = t+"s";
         if(state.timer) clearInterval(state.timer);
         state.timer = setInterval(() => {
             t--; state.totalTime++;
-            document.getElementById('q-timer').innerText = t;
+            document.getElementById('q-timer').innerText = t+"s";
             document.getElementById('t-bar').style.width = (t/30*100)+"%";
             document.getElementById('total-time').innerText = state.totalTime;
             if(t<=0) gameOver();
         }, 1000);
+        updateGameItemCount();
     }
 
     function genQuestion(lv) {
-        const qDiv = document.getElementById('q-content');
-        const optsDiv = document.getElementById('q-opts');
-        optsDiv.innerHTML = '';
         const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
-        let q, a, opts;
-
-        // --- 分級出題核心 ---
-        if(state.grade === 'low') {
-            // 低年級：20以內加減、顏色
-            if(lv % 2 !== 0) {
-                let n1=r(1,10), n2=r(1,9);
-                q=`${n1} + ${n2} = ?`; a=n1+n2;
-                opts=[a, a+1, a-1, a+2];
-            } else {
-                let cs=['🔴','🔵','🟢','🟡']; let txt=['紅','藍','綠','黃'];
-                let idx=r(0,3); q=`選出 ${txt[idx]}色`; a=cs[idx];
-                opts=cs;
-            }
-        } else if(state.grade === 'mid') {
-            // 中年級：乘法、簡易數列
-            if(lv % 2 !== 0) {
-                let n1=r(2,9), n2=r(2,9);
-                q=`${n1} × ${n2} = ?`; a=n1*n2;
-                opts=[a, a+n2, a-n2, a+10];
-            } else {
-                let start=r(1,5), step=r(2,5);
-                q=`${start}, ${start+step}, ${start+step*2}, ?`; a=start+step*3;
-                opts=[a, a+1, a-1, a+2];
-            }
+        let pool = DB[state.grade] || DB['mid'];
+        
+        // 數學題動態生成 (每3關出現一次固定數學，其他隨機抽題庫)
+        let qData;
+        if(lv % 3 === 0) {
+            // 動態數學題
+             if(state.grade === 'low') { let n1=r(1,10), n2=r(1,9); qData={t:"數學", q:`${n1} + ${n2} = ?`, a:n1+n2, o:[n1+n2, n1+n2+1, n1+n2-1, n1+n2+2]}; }
+             else if(state.grade === 'mid') { let n1=r(2,9), n2=r(2,9); qData={t:"數學", q:`${n1} × ${n2} = ?`, a:n1*n2, o:[n1*n2, n1*n2+10, n1*n2-5, n1*n2+1]}; }
+             else { let n1=r(11,20), n2=r(2,9); qData={t:"數學", q:`${n1} × ${n2} = ?`, a:n1*n2, o:[n1*n2, n1*n2+10, n1*n2-10, n1*n2+2]}; }
         } else {
-            // 高年級：混合運算、大數
-            let n1=r(11,20), n2=r(2,9), n3=r(1,50);
-            q=`${n1} × ${n2} - ${n3} = ?`; a=n1*n2-n3;
-            opts=[a, a+10, a-5, a+1];
+            // 從題庫隨機抽
+            qData = pool[Math.floor(Math.random() * pool.length)];
         }
 
-        qDiv.innerText = q;
+        document.getElementById('subj-tag').innerText = qData.t;
+        document.getElementById('q-content').innerText = qData.q;
+        
+        const optsDiv = document.getElementById('q-opts'); optsDiv.innerHTML = '';
+        // 處理選項 (若是字串陣列直接用，若是動態生成的數字則直接用)
+        let opts = qData.o.map(String); 
         opts.sort(()=>0.5-Math.random()).forEach(o => {
-            const b = document.createElement('button');
-            b.className='opt-btn'; b.innerText=o;
-            b.onclick = () => checkAns(o, a);
-            optsDiv.appendChild(b);
+            const b = document.createElement('button'); b.className='opt-btn'; b.innerText=o;
+            b.onclick = () => checkAns(o, qData.a); optsDiv.appendChild(b);
         });
     }
 
     function checkAns(ans, correct) {
         if(!state.inGame) return;
-        if(String(ans) === String(correct)) {
-            winLevel();
-        } else {
-            if(state.shieldOn) {
-                alert("🛡️ 護盾生效！"); state.shieldOn=false;
-            } else {
-                alert("❌ 答錯罰時 +5秒"); state.totalTime+=5;
-            }
+        if(String(ans) === String(correct)) { winLevel(); }
+        else {
+            if(state.shieldOn) { alert("🛡️ 護盾生效！"); state.shieldOn=false; }
+            else { alert("❌ 答錯 +5秒！"); state.totalTime+=5; }
+            updateHUD();
         }
     }
 
     function winLevel() {
-        clearInterval(state.timer);
-        state.inGame = false;
+        clearInterval(state.timer); state.inGame = false;
         document.getElementById('game-modal').classList.remove('active');
-        
-        if(state.level % 3 === 0) {
+        if(state.level % 5 === 0) {
             let gift = ['time','shield','key'][Math.floor(Math.random()*3)];
-            state.items[gift]++;
-            alert(`🎁 獲得道具：${gift}`);
+            state.items[gift]++; alert(`🎁 獲得道具：${gift}`);
         }
-
-        if(state.level < TOTAL_LEVELS) {
-            state.level++;
-            saveProgress(state.grade);
-            renderMap();
-            setTimeout(() => {
-                document.querySelector('.level-node.unlocked').scrollIntoView({block:"center",behavior:"smooth"});
-            }, 300);
-        } else {
-            gameWin();
-        }
+        if(state.level < TOTAL_LEVELS) { state.level++; saveProgress(state.grade); renderMap(); setTimeout(() => { document.querySelector('.level-node.unlocked').scrollIntoView({block:"center",behavior:"smooth"}); }, 300); }
+        else { gameWin(); }
         updateHUD();
     }
 
-    function gameOver() {
-        clearInterval(state.timer); state.inGame=false;
-        alert("💀 時間到！");
-        document.getElementById('game-modal').classList.remove('active');
-    }
+    function gameOver() { clearInterval(state.timer); state.inGame=false; alert("💀 時間到！"); document.getElementById('game-modal').classList.remove('active'); }
+    function gameWin() { document.getElementById('win-modal').classList.add('active'); document.getElementById('final-time').innerText = state.totalTime; document.getElementById('final-grade').innerText = document.getElementById('grade-display').innerText; }
 
-    function gameWin() {
-        document.getElementById('win-modal').classList.add('active');
-        document.getElementById('final-time').innerText = state.totalTime;
-        document.getElementById('final-grade').innerText = document.getElementById('grade-display').innerText;
-    }
-
-    // 4. 道具
     function useItem(type) {
+        if(!state.inGame && type !== 'key') return; 
         if(state.items[type]>0) {
             state.items[type]--;
-            if(type==='time') { state.totalTime-=10; alert("時間-10s"); }
-            if(type==='shield') { state.shieldOn=true; alert("護盾開啟"); }
-            if(type==='key') { winLevel(); }
-            updateHUD();
-            saveProgress(state.grade);
-        }
+            if(type==='time') { state.totalTime = Math.max(0, state.totalTime-10); alert("⏳ 時間 -10秒"); }
+            if(type==='shield') { state.shieldOn=true; alert("🛡️ 護盾開啟"); }
+            if(type==='key') { if(state.inGame) winLevel(); else alert("請在關卡中使用"); }
+            updateHUD(); updateGameItemCount(); saveProgress(state.grade);
+        } else { alert("道具不足"); }
     }
     
     function updateHUD() {
-        document.getElementById('c-time').innerText = state.items.time;
-        document.getElementById('c-shield').innerText = state.items.shield;
-        document.getElementById('c-key').innerText = state.items.key;
+        document.getElementById('c-time').innerText = state.items.time; document.getElementById('c-shield').innerText = state.items.shield; document.getElementById('c-key').innerText = state.items.key;
         document.getElementById('total-time').innerText = state.totalTime;
     }
-
-    // 5. 存檔
-    function saveProgress(g) {
-        const d = { level: state.level, items: state.items, time: state.totalTime };
-        localStorage.setItem('adv_save_' + g, JSON.stringify(d));
+    function updateGameItemCount() {
+        document.getElementById('g-c-time').innerText = state.items.time; document.getElementById('g-c-shield').innerText = state.items.shield; document.getElementById('g-c-key').innerText = state.items.key;
     }
+
+    function saveProgress(g) { localStorage.setItem('adv_save_v27_' + g, JSON.stringify({ level: state.level, items: state.items, time: state.totalTime })); }
     function loadProgress(g) {
-        const s = localStorage.getItem('adv_save_' + g);
-        if(s) {
-            const d = JSON.parse(s);
-            state.level = d.level; state.items = d.items; state.totalTime = d.time;
-        } else {
-            state.level = 1; state.items = {time:1,shield:1,key:0}; state.totalTime = 0;
-        }
+        const s = localStorage.getItem('adv_save_v27_' + g);
+        if(s) { const d = JSON.parse(s); state.level = d.level; state.items = d.items; state.totalTime = d.time; }
+        else { state.level = 1; state.items = {time:2,shield:2,key:1}; state.totalTime = 0; }
     }
 
-    // 6. 排行榜
     function submitScore() {
-        const n = document.getElementById('input-name').value;
-        if(!n) return;
-        fetch(API_URL, {
-            method:'POST',
-            body:JSON.stringify({type:'record', name:n, time:state.totalTime, grade:state.grade})
-        }).then(()=>{ alert("上傳成功"); location.reload(); });
+        const n = document.getElementById('input-name').value.trim();
+        if(!n) { alert("請輸入名字"); return; }
+        fetch(API_URL, { method:'POST', body:JSON.stringify({type:'record', name:n, time:state.totalTime, grade:state.grade}), headers:{"Content-Type":"text/plain"} })
+        .then(r=>r.json()).then(d=>{ alert("✅ 上傳成功"); location.reload(); }).catch(e=>{ alert("上傳失敗，請檢查 GAS 網址與網路"); });
     }
 
-    function openRank() {
-        document.getElementById('rank-modal').classList.add('active');
-        loadRank(state.grade); // 預設載入當前年級
-    }
-
+    function openRank() { document.getElementById('rank-modal').classList.add('active'); loadRank(state.grade); }
     function loadRank(grade, btn) {
-        if(btn) {
-            document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        const div = document.getElementById('rank-list');
-        div.innerHTML = "載入中...";
-        fetch(API_URL + `?action=getRank&grade=${grade}`)
-            .then(r=>r.json())
-            .then(d=>{
-                div.innerHTML = "";
-                if(d.length==0) div.innerHTML = "尚無紀錄";
-                d.slice(0,10).forEach((row,i) => {
-                    div.innerHTML += `<div class="rank-row"><span>#${i+1} ${row.name}</span><span>${row.time}s</span></div>`;
-                });
+        if(btn) { document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        const div = document.getElementById('rank-list'); div.innerHTML = '<div style="text-align:center;">載入中...</div>';
+        fetch(API_URL + `?action=getRank&grade=${grade}`).then(r=>r.json()).then(d=>{
+            div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄</div>';
+            d.slice(0,10).forEach((row,i) => {
+                let medal = i===0?'🥇':(i===1?'🥈':(i===2?'🥉':(i+1+'.')));
+                div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.time}s</span></div>`;
             });
+        }).catch(e=>{ div.innerHTML = "載入失敗，請確認 GAS 版本"; });
     }
-
 </script>
 </body>
 </html>
