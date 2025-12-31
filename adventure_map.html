@@ -84,13 +84,42 @@
 </div>
 
 <div id="map-viewport">
-    <div class="zone zone-5"><div class="zone-label">World 5: 機械城堡</div></div>
-    <div class="zone zone-4"><div class="zone-label">World 4: 熔岩火山</div></div>
-    <div class="zone zone-3"><div class="zone-label">World 3: 極地冰原</div></div>
-    <div class="zone zone-2"><div class="zone-label">World 2: 烈日沙漠</div></div>
-    <div class="zone zone-1"><div class="zone-label">World 1: 迷霧森林</div></div>
-    <svg id="path-svg"><path id="map-path" d=""/></svg>
-    <div id="nodes-container"></div>
+   /* === 🌍 五大世界：視覺強制更新版 (V27.1) === */
+        
+        /* World 1: 迷霧森林 (深綠色系 - 巨木與霧氣) */
+        .zone-1 { 
+            top: 2800px; 
+            background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1600&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 50, 0, 0.3); /* 加強綠色氛圍 */
+        }
+        
+        /* World 2: 烈日沙漠 (金黃色系 - 沙丘) */
+        .zone-2 { 
+            top: 2100px; 
+            background-image: url('https://images.unsplash.com/photo-1542401886-65d6c61db217?q=80&w=1600&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(255, 140, 0, 0.2); /* 加強橘光 */
+        }
+        
+        /* World 3: 極地冰原 (冰藍色系 - 冰洞) */
+        .zone-3 { 
+            top: 1400px; 
+            background-image: url('https://images.unsplash.com/photo-1518182170546-0766ba6f6a56?q=80&w=1600&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 100, 255, 0.3); /* 加強藍冷光 */
+        }
+        
+        /* World 4: 熔岩火山 (暗紅色系 - 岩漿特寫) */
+        .zone-4 { 
+            top: 700px; 
+            background-image: url('https://images.unsplash.com/photo-1506543730-f3a1d9b3d3d8?q=80&w=1600&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.4); /* 加強紅黑壓迫感 */
+        }
+        
+        /* World 5: 機械城堡 (金屬灰系 - 哥德式建築) */
+        .zone-5 { 
+            top: 0px; 
+            background-image: url('https://images.unsplash.com/photo-1533154683836-6b72027c5083?q=80&w=1600&auto=format&fit=crop'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5); /* 加強暗黑金屬感 */
+        }
 </div>
 
 <div class="modal" id="game-modal">
