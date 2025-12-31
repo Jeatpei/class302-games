@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：時空穿越者 (V27.3)</title>
+    <title>傑特佩大冒險：時空穿越者 (V27.4)</title>
     <style>
         :root { --locked: #444; --unlocked: #29b6f6; --cleared: #fbc02d; }
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
@@ -14,44 +14,44 @@
             position: relative; scroll-behavior: smooth; padding-bottom: 80px; background: #000;
         }
 
-        /* === 🌍 五大世界背景 === */
+        /* === 🌍 五大世界背景 (V27.4 指定ID修復版) === */
         .zone {
             position: absolute; width: 100%; height: 700px; left: 0; z-index: 0;
             background-size: cover; background-position: center;
             border-top: 5px solid rgba(0,0,0,0.5);
-            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.3);
+            /* 加上遮罩讓文字更清楚 */
+            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.4);
         }
         
-        /* World 1: 迷霧森林 */
+        /* World 1: 迷霧森林 (保持原樣，這張很穩) */
         .zone-1 { 
             top: 2800px; 
-            background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1600&auto=format&fit=crop'); 
+            background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80'); 
             box-shadow: inset 0 0 0 1000px rgba(0, 50, 0, 0.4); 
         }
-        /* World 2: 烈日沙漠 */
+        /* World 2: 烈日沙漠 (保持原樣，這張很穩) */
         .zone-2 { 
             top: 2100px; 
-            background-image: url('https://images.unsplash.com/photo-1542401886-65d6c61db217?q=80&w=1600&auto=format&fit=crop'); 
+            background-image: url('https://images.unsplash.com/photo-1509316709124-e333e8293633?auto=format&fit=crop&w=1000&q=80'); 
             box-shadow: inset 0 0 0 1000px rgba(255, 140, 0, 0.2); 
         }
-        /* World 3: 極地冰原 */
+        /* World 3: 極地冰原 (修復：改成深藍冰洞) */
         .zone-3 { 
             top: 1400px; 
-            background-image: url('https://images.unsplash.com/photo-1478562853135-c3c9e3ef7905?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 100, 255, 0.3); 
+            background-image: url('https://images.unsplash.com/photo-1518182170546-0766ba6f6a56?auto=format&fit=crop&w=1000&q=80'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 50, 150, 0.3); 
         }
-        /* World 4: 熔岩火山 */
+        /* World 4: 熔岩火山 (修復：改成暗黑岩漿流) */
         .zone-4 { 
             top: 700px; 
-            background-image: url('https://images.unsplash.com/photo-1599827885974-958a0a9557a2?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.4); 
+            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfa712568?auto=format&fit=crop&w=1000&q=80'); 
+            box-shadow: inset 0 0 0 1000px rgba(100, 0, 0, 0.3); 
         }
-        /* World 5: 機械城堡 (修正：換成賽博龐克工廠圖) */
+        /* World 5: 機械城堡 (修復：改成工業管線與鋼鐵結構) */
         .zone-5 { 
             top: 0px; 
-            /* 換成這張：充滿管線、金屬與藍光的工業結構 */
-            background-image: url('https://images.unsplash.com/photo-1563805042-7684c019e1cb?q=80&w=1600&auto=format&fit=crop'); 
-            box-shadow: inset 0 0 0 1000px rgba(0, 0, 20, 0.6); 
+            background-image: url('https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1000&q=80'); 
+            box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.6); 
         }
 
         .zone-label {
@@ -59,11 +59,9 @@
             color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 3px;
             text-shadow: 3px 3px 10px rgba(0,0,0,1); pointer-events: none;
         }
-
-        /* 🔴 修正：World 5 的字往下移，避免被 HUD 擋住 */
-        .zone-5 .zone-label {
-            top: 100px; 
-        }
+        
+        /* World 5 的字往下移，避免被 HUD 擋住 */
+        .zone-5 .zone-label { top: 120px; }
 
         /* 關卡節點 */
         .level-node {
