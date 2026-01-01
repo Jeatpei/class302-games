@@ -17,9 +17,7 @@
         body {
             font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0;
             background-color: var(--light); color: var(--dark);
-            /* 防止手機左右滑動 */
-            overflow-x: hidden; 
-            padding-bottom: 50px;
+            overflow-x: hidden; padding-bottom: 50px;
         }
 
         /* 手機版頂部導航 */
@@ -33,50 +31,73 @@
         h1 { margin: 0; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; letter-spacing: 1px; }
 
-        /* 主選單容器 (Grid 佈局) */
+        /* 主選單容器 */
         .menu-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 兩欄 */
-            gap: 15px; padding: 25px 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px; padding: 20px;
             max-width: 600px; margin: 0 auto;
         }
 
-        /* 四大區塊卡片 */
+        /* 卡片共用樣式 */
         .menu-card {
-            background: white; border-radius: 20px; padding: 20px 10px;
+            background: white; border-radius: 20px; padding: 15px;
             text-align: center; cursor: pointer; transition: transform 0.2s;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 150px; text-decoration: none; color: inherit;
-            border: 2px solid transparent;
+            text-decoration: none; color: inherit;
+            border: 2px solid transparent; position: relative; overflow: hidden;
         }
         .menu-card:active { transform: scale(0.95); }
         .menu-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 
-        .icon { font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1)); }
-        .card-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+        .icon { font-size: 3rem; margin-bottom: 5px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1)); }
+        .card-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
         .card-desc { font-size: 0.75rem; color: #90a4ae; line-height: 1.4; }
 
-        /* 各區塊配色 */
         /* 1. 簡單遊戲 */
-        .card-simple { border-bottom: 6px solid var(--primary); }
+        .card-simple { border-bottom: 6px solid var(--primary); height: 160px; }
         .card-simple .icon { color: var(--primary); }
         .card-simple .card-title { color: var(--primary); }
 
         /* 2. 知識殿堂 */
-        .card-know { border-bottom: 6px solid var(--secondary); }
+        .card-know { border-bottom: 6px solid var(--secondary); height: 160px; }
         .card-know .icon { color: var(--secondary); }
         .card-know .card-title { color: var(--secondary); }
 
-        /* 3. 闖關地圖 (橫跨) */
-        .card-adv { border-bottom: 6px solid var(--danger); grid-column: span 2; background: linear-gradient(to bottom right, #fff, #fff5f5); }
-        .card-adv .icon { color: var(--danger); }
-        .card-adv .card-title { color: var(--danger); }
+        /* 3. 闖關地圖 (橫跨兩欄 + 特殊樣式) */
+        .card-adv { 
+            border-bottom: 6px solid var(--danger); 
+            grid-column: span 2; 
+            background: linear-gradient(to bottom right, #fff, #fff5f5);
+            flex-direction: row; /* 改為橫向排列 */
+            justify-content: space-around;
+            text-align: left;
+            padding: 15px 25px;
+        }
+        .card-adv .left-part { display: flex; flex-direction: column; align-items: center; }
+        .card-adv .icon { color: var(--danger); font-size: 3.5rem; margin-bottom: 0; }
+        .card-adv .card-title { color: var(--danger); font-size: 1.3rem; }
+        
+        /* 道具說明區 */
+        .item-guide { 
+            background: rgba(255,255,255,0.8); border: 1px solid #ffcdd2;
+            border-radius: 10px; padding: 8px 12px; margin-left: 15px;
+            font-size: 0.8rem; color: #555; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .guide-row { display: flex; align-items: center; gap: 5px; margin: 4px 0; }
+        .g-icon { font-size: 1rem; }
 
-        /* 4. 上傳競技 (橫跨) */
-        .card-upload { border-bottom: 6px solid var(--info); grid-column: span 2; background: linear-gradient(to bottom right, #fff, #f0f8ff); }
-        .card-upload .icon { color: var(--info); }
-        .card-upload .card-title { color: var(--info); }
+        /* 4. 上傳競技 (橫跨兩欄) */
+        .card-upload { 
+            border-bottom: 6px solid var(--info); 
+            grid-column: span 2; 
+            background: linear-gradient(to bottom right, #fff, #f0f8ff);
+            height: 100px; flex-direction: row; gap: 20px;
+        }
+        .card-upload .icon { color: var(--info); margin: 0; font-size: 2.5rem; }
+        .card-upload .card-title { color: var(--info); margin: 0; text-align: left; }
+        .card-upload .card-desc { text-align: left; }
 
         /* 底部資訊 */
         footer {
@@ -84,7 +105,7 @@
             margin-top: 10px;
         }
 
-        /* 模擬手機螢幕寬度 (桌機看的時候比較準) */
+        /* 電腦版限制寬度 */
         @media (min-width: 600px) {
             body { background: #cfd8dc; }
             #app-frame {
@@ -106,35 +127,44 @@
         <a href="simple_games.html" class="menu-card card-simple">
             <div class="icon">🧩</div>
             <div class="card-title">簡單遊戲區</div>
-            <div class="card-desc">打地鼠．練反應<br>(1-4年級)</div>
+            <div class="card-desc">打地鼠．接寶物．記憶<br>7款輕鬆小品</div>
         </a>
 
         <a href="knowledge_games.html" class="menu-card card-know">
             <div class="icon">📚</div>
             <div class="card-title">知識殿堂</div>
-            <div class="card-desc">國數社自英．全科挑戰<br>(3-6年級)</div>
+            <div class="card-desc">國數社自英．全科挑戰<br>隨機題庫．積分排行</div>
         </a>
 
         <a href="adventure_map.html" class="menu-card card-adv">
-            <div class="icon">🏰</div>
-            <div class="card-title">時空大冒險</div>
-            <div class="card-desc">30關升級挑戰．收集道具．前往終點</div>
+            <div class="left-part">
+                <div class="icon">🏰</div>
+                <div class="card-title">時空大冒險</div>
+            </div>
+            <div class="item-guide">
+                <div style="font-weight:bold; color:#d32f2f; margin-bottom:3px; font-size:0.75rem;">💡 道具攻略：</div>
+                <div class="guide-row"><span class="g-icon">⏳</span> 沙漏：時間 -10秒</div>
+                <div class="guide-row"><span class="g-icon">🛡️</span> 護盾：擋一次懲罰</div>
+                <div class="guide-row"><span class="g-icon">🔑</span> 鑰匙：直接過關！</div>
+            </div>
         </a>
 
         <a href="upload_zone.html" class="menu-card card-upload">
             <div class="icon">🏆</div>
-            <div class="card-title">遊戲王競技場</div>
-            <div class="card-desc">上傳你的 Code．爭奪熱門排行冠軍</div>
+            <div>
+                <div class="card-title">遊戲王競技場</div>
+                <div class="card-desc">上傳你的 Code．爭奪熱門排行冠軍</div>
+            </div>
         </a>
     </div>
 
     <div style="padding: 0 20px;">
-        <h3 style="margin-bottom: 10px; color: #546E7A; font-size: 1rem;">🔥 本週推薦</h3>
-        <div style="background: white; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer;" onclick="location.href='simple_games.html'">
-            <span style="font-size: 2rem;">🐹</span>
+        <h3 style="margin-bottom: 10px; color: #546E7A; font-size: 0.9rem;">🔥 本週熱門</h3>
+        <div style="background: white; padding: 12px; border-radius: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer;" onclick="location.href='simple_games.html'">
+            <span style="font-size: 1.8rem;">⚡</span>
             <div>
-                <div style="font-weight: bold; color: #333;">瘋狂打地鼠</div>
-                <div style="font-size: 0.8rem; color: #888;">簡單好玩，快來挑戰最高分！</div>
+                <div style="font-weight: bold; color: #333; font-size: 0.95rem;">10秒點擊王</div>
+                <div style="font-size: 0.75rem; color: #888;">簡單遊戲區最新推出，挑戰你的手速極限！</div>
             </div>
         </div>
     </div>
@@ -146,7 +176,7 @@
 </div>
 
 <script>
-    console.log("傑特佩小遊戲網 - 系統就緒");
+    console.log("傑特佩小遊戲網 - 首頁載入完成");
 </script>
 
 </body>
