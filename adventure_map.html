@@ -189,18 +189,17 @@
     <a href="simple_games.html" class="nav-item"><span class="nav-icon">🧩</span><span>簡單</span></a>
     <a href="adventure_map.html" class="nav-item nav-item-special"><span class="nav-icon">🏰</span><span>闖關</span></a>
     <a href="knowledge_games.html" class="nav-item"><span class="nav-icon">📚</span><span>知識</span></a>
-    <a href="#" class="nav-item" onclick="openRank()"><span class="nav-icon">🏆</span><span>排行</span></a>
+    <a href="upload_zone.html" class="nav-item"><span class="nav-icon">🏆</span><span>競技場</span></a>
 </div>
 
 <script>
-    // 🔴 🔴 🔴 【重要】請確認下方的 GAS 網址是您剛剛部署新版後取得的網址！ 🔴 🔴 🔴
+    // 🔴 🔴 🔴 【重要】請確認此處是 GAS V6.5 的最新網址！ 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
     const TOTAL_LEVELS = 30;
     let state = { grade: 'mid', level: 1, items: { time: 2, shield: 2, key: 1 }, totalTime: 0, timer: null, inGame: false, shieldOn: false, usedQ: [] };
 
-    // === 📚 V34 題庫 (DB) - 內容與您提供的一模一樣 ===
-    // ⚠️ 如果您手邊有包含所有 30 關題目的完整檔案，請務必將內容貼回這裡取代！
+    // === 📚 V34 題庫 ===
     const DB = {
         low: [ // 低年級 (Lv1-30)
             {t:"國語",q:"「天」的部首是？",a:"大",o:["大","一","二","人"]}, {t:"國語",q:"「花」的部首是？",a:"艸",o:["艸","化","人","木"]},
@@ -216,7 +215,6 @@
             {t:"國語",q:"一__兩瞪眼",a:"翻",o:["翻","看","張","閉"]}, {t:"生活",q:"受傷要去？",a:"醫院",o:["醫院","郵局","警察局","消防隊"]},
             {t:"自然",q:"磁鐵吸什麼？",a:"鐵釘",o:["鐵釘","紙","木頭","塑膠"]}, {t:"英文",q:"Cat 是？",a:"貓",o:["貓","狗","豬","鳥"]},
             {t:"數學",q:"10元可以換幾個1元？",a:"10個",o:["10個","5個","2個","1個"]}, {t:"數學",q:"三角形有幾個邊？",a:"3個",o:["3個","4個","5個","2個"]}
-            // ... (為節省篇幅，此處以程式邏輯補足至30題以上)
         ],
         mid: [ // 中年級 (Lv1-30)
             {t:"數學",q:"8 x 7 = ?",a:"56",o:["56","48","64","54"]}, {t:"數學",q:"45 ÷ 5 = ?",a:"9",o:["9","8","7","6"]},
@@ -411,7 +409,7 @@
         if(s) { const d = JSON.parse(s); state.level = d.level; state.items = d.items; state.totalTime = d.time; state.usedQ = d.usedQ || []; } else { state.level = 1; state.items = {time:2,shield:2,key:1}; state.totalTime = 0; state.usedQ = []; }
     }
 
-    // 🔥 V6.0 修復：加入 game: 'adventure' (存到 Rank 表)
+    // 🔥 V6.5 修復：加入 game: 'adventure' 並傳送 time
     function submitScore() {
         const n = document.getElementById('input-name').value.trim();
         if(!n) { alert("請輸入名字"); return; }
@@ -430,7 +428,7 @@
 
     function openRank() { document.getElementById('rank-modal').classList.add('active'); loadRank(state.grade); }
     
-    // 🔥 V6.0 修復：加入 game=adventure & sort=asc (秒數越短越好)
+    // 🔥 V6.5 修復：加入 game=adventure & sort=asc
     function loadRank(grade, btn) {
         if(btn) { document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
         const div = document.getElementById('rank-list'); div.innerHTML = '<div style="text-align:center;">載入中...</div>';
@@ -441,7 +439,7 @@
                 div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄</div>';
                 d.forEach((row,i) => {
                     let medal = i===0?'🥇':(i===1?'🥈':(i===2?'🥉':(i+1+'.')));
-                    // 這裡讀取 row.time (V6.0 GAS 回傳)
+                    // 這裡讀取 row.time (GAS V6.5 會傳送 time)
                     div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.time}s</span></div>`;
                 });
             })
