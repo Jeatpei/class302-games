@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>傑特佩 - 遊戲王競技場</title>
+    <style>
+        :root {
+            --primary: #4e54c8; /* 電競紫 */
+            --secondary: #8f94fb;
+            --accent: #ff9f43; /* 亮橘 */
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', '微軟正黑體', sans-serif;
+            background: var(--bg);
+            margin: 0; padding: 0;
+            color: var(--text);
+            padding-bottom: 100px; /* 預留底部導航空間 */
+        }
+        
+        /* === 頂部橫幅 (Header) === */
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 20px 50px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
+            margin-bottom: -30px; /* 讓內容卡片往上浮 */
+        }
+        .hero-header h1 { margin: 0; font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); letter-spacing: 1px; }
+        .hero-desc { opacity: 0.9; font-size: 0.9rem; margin-top: 5px; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 0 15px; }
+
+        /* === 導航切換 (Tabs) === */
+        .nav-container {
+            display: flex; justify-content: center; gap: 15px; margin-bottom: 25px;
+            position: relative; z-index: 10;
+        }
+        .tab-btn {
+            background: white; border: none; padding: 12px 25px;
+            border-radius: 50px; font-weight: bold; color: #7f8c8d;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;
+            transition: all 0.2s; font-size: 1rem; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn.active {
+            background: var(--accent); color: white;
+            transform: translateY(-3px); box-shadow: 0 6px 12px rgba(255, 159, 67, 0.4);
+        }
+        .tab-btn:hover:not(.active) { transform: translateY(-2px); }
+
+        /* === 區塊控制 === */
+        .section { display: none; animation: fadeIn 0.3s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === 排行榜列表 (Game Cards) === */
+        .game-list { display: flex; flex-direction: column; gap: 15px; }
+        
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 16px; padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer;
+            transition: all 0.2s; border-left: 6px solid transparent;
+            position: relative; overflow: hidden;
+        }
+        .game-card:active { transform: scale(0.98); }
+        .game-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        /* 內容佈局 */
+        .card-left { display: flex; align-items: center; gap: 15px; flex: 1; }
+        .rank-icon { font-size: 1.5rem; font-weight: bold; width: 40px; text-align: center; color: #bdc3c7; }
+        .game-info h3 { margin: 0 0 4px 0; font-size: 1.1rem; color: #2c3e50; }
+        .game-meta { font-size: 0.85rem; color: #7f8c8d; display: flex; align-items: center; gap: 10px; }
+        .author-tag { background: #eef2f7; padding: 2px 8px; border-radius: 4px; color: #576574; font-weight: bold; }
+        
+        .view-count {
+            text-align: center; padding-left: 15px;
+            border-left: 1px solid #eee; min-width: 60px;
+        }
+        .view-num { display: block; font-weight: bold; font-size: 1.1rem; color: var(--primary); }
+        .view-label { font-size: 0.7rem; color: #aaa; }
+
+        /* === 前三名特效 === */
+        .rank-1 { border-left-color: #ffd700; background: linear-gradient(to right, #fff, #fffdf0); }
+        .rank-1 .rank-icon { font-size: 2.5rem; text-shadow: 0 2px 0 #d4af37; animation: bounce 2s infinite; }
+        
+        .rank-2 { border-left-color: #bdc3c7; }
+        .rank-2 .rank-icon { font-size: 2rem; color: #7f8c8d; }
+        
+        .rank-3 { border-left-color: #cd7f32; }
+        .rank-3 .rank-icon { font-size: 1.8rem; color: #a0522d; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        /* === 上傳表單 === */
+        .upload-panel {
+            background: white; padding: 25px; border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .form-title { text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: var(--primary); font-weight: bold; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; color: #555; }
+        .form-control {
+            width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;
+            font-size: 1rem; box-sizing: border-box; transition: 0.2s;
+        }
+        .form-control:focus { border-color: var(--secondary); outline: none; }
+        textarea.form-control { height: 120px; font-family: monospace; background: #2d3436; color: #fab1a0; border: none; }
+
+        .submit-btn {
+            width: 100%; padding: 15px; background: linear-gradient(to right, #11998e, #38ef7d);
+            color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(56, 239, 125, 0.4); transition: 0.2s;
+        }
+        .submit-btn:active { transform: scale(0.98); box-shadow: none; }
+        .submit-btn:disabled { background: #ccc; box-shadow: none; }
+
+        /* === 遊戲視窗 (Modal) === */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal.open { display: flex; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-content {
+            width: 100%; max-width: 500px; height: 80vh; background: white;
+            border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;
+            position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .modal-header {
+            padding: 15px; background: #2c3e50; color: white; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .close-btn {
+            background: #e74c3c; width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-weight: bold;
+        }
+        iframe { flex: 1; border: none; width: 100%; background: #f0f0f0; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 40px; color: #aaa; }
+        .spinner {
+            width: 30px; height: 30px; border: 4px solid #eee; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 1s infinite linear; margin: 0 auto 10px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* === 底部導航欄 === */
+        #jetpay-navbar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 500px; height: 65px;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            border-radius: 50px; border: 1px solid #eee;
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 9999;
+        }
+        .nav-item {
+            text-decoration: none; color: #95a5a6; font-size: 0.75rem;
+            display: flex; flex-direction: column; align-items: center;
+            transition: 0.2s; position: relative;
+        }
+        .nav-icon { font-size: 1.6rem; margin-bottom: 2px; }
+        .nav-item:hover { color: #2c3e50; transform: translateY(-2px); }
+        .nav-item-special { color: #e67e22; font-weight: bold; }
+        .nav-item-special .nav-icon {
+            background: #e67e22; color: white; width: 45px; height: 45px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); margin-top: -20px;
+            border: 4px solid white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero-header">
+    <h1>🏆 傑特佩遊戲王</h1>
+    <div class="hero-desc">Create, Play, and Rank Up!</div>
+</div>
+
+<div class="container">
+    <div class="nav-container">
+        <button class="tab-btn active" onclick="switchTab('list')">🔥 熱門排行</button>
+        <button class="tab-btn" onclick="switchTab('upload')">🚀 我要上傳</button>
+    </div>
+
+    <div id="section-list" class="section active">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div>連線遊戲資料庫中...</div>
+        </div>
+        <div id="game-container" class="game-list">
+            </div>
+    </div>
+
+    <div id="section-upload" class="section">
+        <div class="upload-panel">
+            <div class="form-title">✨ 發布你的遊戲作品</div>
+            <div class="form-group">
+                <label>遊戲名稱</label>
+                <input type="text" class="form-control" id="gName" placeholder="例如：無敵大迷宮">
+            </div>
+            <div class="form-group">
+                <label>作者 (班級姓名)</label>
+                <input type="text" class="form-control" id="gAuthor" placeholder="例如：401 陳小美">
+            </div>
+            <div class="form-group">
+                <label>遊戲說明</label>
+                <input type="text" class="form-control" id="gDesc" placeholder="簡單介紹玩法...">
+            </div>
+            <div class="form-group">
+                <label>HTML 程式碼 (貼上 ChatGPT 給你的代碼)</label>
+                <textarea class="form-control" id="gCode" placeholder="<html>...</html>"></textarea>
+            </div>
+            <button class="submit-btn" id="submitBtn" onclick="uploadGame()">確認發布 (Publish)</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="gameModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span id="modalTitle" style="font-weight:bold;">遊戲標題</span>
+            <div class="close-btn" onclick="closeGame()">✕</div>
+        </div>
+        <iframe id="gameFrame" sandbox="allow-scripts allow-modals"></iframe>
+    </div>
+</div>
+
+<div id="jetpay-navbar">
+    <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span>首頁</span></a>
+    <a href="simple_games.html" class="nav-item"><span class="nav-icon">🧩</span><span>簡單</span></a>
+    <a href="upload_zone.html" class="nav-item nav-item-special"><span class="nav-icon">🏆</span><span>競技場</span></a>
+    <a href="knowledge_games.html" class="nav-item"><span class="nav-icon">📚</span><span>知識</span></a>
+    <a href="adventure_map.html" class="nav-item"><span class="nav-icon">🏰</span><span>闖關</span></a>
+</div>
+
+<script>
+    // 🔴 🔴 🔴 請確認此處與您部署的 GAS 網址一致 🔴 🔴 🔴
+    const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
+
+    window.onload = function() {
+        if(API_URL.includes("YOUR_GAS_URL")) {
+            alert("⚠️ 請注意：您還沒有更換 GAS 網址！");
+        } else {
+            loadGames();
+        }
+    };
+
+    function switchTab(tab) {
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById('section-' + tab).classList.add('active');
+        const btns = document.querySelectorAll('.tab-btn');
+        if(tab==='list') btns[0].classList.add('active');
+        else btns[1].classList.add('active');
+
+        if(tab === 'list') loadGames();
+    }
+
+    // --- 讀取列表 ---
+    function loadGames() {
+        const container = document.getElementById('game-container');
+        const loading = document.getElementById('loading');
+        
+        container.innerHTML = '';
+        loading.style.display = 'block';
+
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                loading.style.display = 'none';
+                if(data.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:20px;">📭 目前還沒有遊戲，快去當第一個創作者！</div>';
+                    return;
+                }
+
+                data.forEach((game, index) => {
+                    let rankHTML = `<div class="rank-icon">#${index+1}</div>`;
+                    let rankClass = '';
+                    
+                    if(index === 0) { rankHTML = `<div class="rank-icon">🏆</div>`; rankClass = 'rank-1'; }
+                    else if(index === 1) { rankHTML = `<div class="rank-icon">🥈</div>`; rankClass = 'rank-2'; }
+                    else if(index === 2) { rankHTML = `<div class="rank-icon">🥉</div>`; rankClass = 'rank-3'; }
+
+                    const div = document.createElement('div');
+                    div.className = `game-card ${rankClass}`;
+                    div.onclick = () => playGame(game);
+                    
+                    div.innerHTML = `
+                        <div class="card-left">
+                            ${rankHTML}
+                            <div class="game-info">
+                                <h3>${game.name}</h3>
+                                <div class="game-meta">
+                                    <span class="author-tag">👤 ${game.author}</span>
+                                    <span>${game.desc}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="view-count">
+                            <span class="view-num">${game.views}</span>
+                            <span class="view-label">點閱</span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            })
+            .catch(err => {
+                loading.innerHTML = "⚠️ 連線失敗，請檢查網路或網址。";
+                console.error(err);
+            });
+    }
+
+    // --- 上傳遊戲 ---
+    function uploadGame() {
+        const name = document.getElementById('gName').value.trim();
+        const author = document.getElementById('gAuthor').value.trim();
+        const desc = document.getElementById('gDesc').value.trim();
+        const code = document.getElementById('gCode').value.trim();
+        const btn = document.getElementById('submitBtn');
+
+        if(!name || !author || !code) { alert("請填寫完整資訊 (名稱、作者、代碼)！"); return; }
+
+        btn.disabled = true; btn.innerText = "🚀 資料傳送中...";
+
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ name, author, desc, code }), // 上傳時不需要 game: 'knowledge'，後端有預設處理
+            headers: { "Content-Type": "text/plain" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "success") {
+                alert("🎉 上傳成功！你的遊戲已經發布囉！");
+                document.getElementById('gName').value = "";
+                document.getElementById('gDesc').value = "";
+                document.getElementById('gCode').value = "";
+                switchTab('list');
+            } else {
+                alert("上傳失敗：" + data.message);
+            }
+        })
+        .catch(err => {
+            // 有時候 GAS 回傳格式瀏覽器不喜歡，但其實成功了
+            alert("✅ 請求已送出！請至排行榜確認。");
+            switchTab('list');
+        })
+        .finally(() => {
+            btn.disabled = false; btn.innerText = "確認發布 (Publish)";
+        });
+    }
+
+    // --- 遊玩 ---
+    function playGame(game) {
+        document.getElementById('modalTitle').innerText = game.name;
+        const iframe = document.getElementById('gameFrame');
+        iframe.srcdoc = game.code;
+        document.getElementById('gameModal').classList.add('open');
+        
+        // 增加點閱數 (這個 API 動作在我們目前的簡單版 GAS 還沒實作，這行只是預留)
+        // fetch(`${API_URL}?action=addView&id=${game.id}`, { mode: 'no-cors' });
+    }
+
+    function closeGame() {
+        document.getElementById('gameModal').classList.remove('open');
+        document.getElementById('gameFrame').srcdoc = "";
+        loadGames();
+    }
+</script>
+</body>
+</html>

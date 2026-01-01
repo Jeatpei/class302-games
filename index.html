@@ -3,207 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩 - 遊戲首頁</title>
+    <title>傑特佩小遊戲網</title>
     <style>
         :root {
-            --primary: #4e54c8;
-            --secondary: #8f94fb;
-            --accent: #ff9f43;
-            --bg: #f4f6f9;
-            --card-bg: #ffffff;
-            --text: #2c3e50;
+            --primary: #FF9800; /* 活力橘 - 簡單 */
+            --secondary: #4CAF50; /* 知識綠 - 知識 */
+            --danger: #F44336; /* 闖關紅 - 冒險 */
+            --info: #2196F3; /* 創作藍 - 競技 */
+            --dark: #37474F;
+            --light: #ECEFF1;
         }
-
+        
         body {
-            font-family: 'Segoe UI', '微軟正黑體', sans-serif;
-            background: var(--bg);
-            margin: 0; padding: 0;
-            color: var(--text);
-            padding-bottom: 90px; /* 留給導航列空間 */
+            font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0;
+            background-color: var(--light); color: var(--dark);
+            /* 防止手機左右滑動 */
+            overflow-x: hidden; 
+            padding-bottom: 50px;
         }
 
-        /* === 頂部歡迎區 === */
-        .home-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 40px 20px 60px 20px;
-            text-align: left;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
-            position: relative;
+        /* 手機版頂部導航 */
+        header {
+            background: var(--dark); color: white; padding: 20px 15px;
+            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
-        .welcome-text { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
-        .app-title { font-size: 2rem; margin: 0; font-weight: 800; letter-spacing: 1px; }
-        .class-badge {
-            position: absolute; top: 40px; right: 20px;
-            background: rgba(255,255,255,0.2); padding: 5px 15px;
-            border-radius: 20px; font-weight: bold; backdrop-filter: blur(5px);
-        }
+        h1 { margin: 0; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; letter-spacing: 1px; }
 
-        /* === 主要選單區 === */
+        /* 主選單容器 (Grid 佈局) */
         .menu-container {
-            max-width: 600px; margin: -40px auto 0 auto;
-            padding: 0 20px;
             display: grid;
-            grid-template-columns: 1fr; /* 手機預設單欄 */
-            gap: 15px;
+            grid-template-columns: 1fr 1fr; /* 兩欄 */
+            gap: 15px; padding: 25px 20px;
+            max-width: 600px; margin: 0 auto;
         }
 
-        /* === 選單卡片設計 === */
+        /* 四大區塊卡片 */
         .menu-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            display: flex; align-items: center; justify-content: space-between;
+            background: white; border-radius: 20px; padding: 20px 10px;
+            text-align: center; cursor: pointer; transition: transform 0.2s;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            text-decoration: none; color: inherit;
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 150px; text-decoration: none; color: inherit;
+            border: 2px solid transparent;
         }
-        .menu-card:active { transform: scale(0.98); }
-        .menu-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .menu-card:active { transform: scale(0.95); }
+        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 
-        .card-icon {
-            width: 50px; height: 50px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; margin-right: 15px;
-            background: #f0f2f5; transition: 0.3s;
+        .icon { font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1)); }
+        .card-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+        .card-desc { font-size: 0.75rem; color: #90a4ae; line-height: 1.4; }
+
+        /* 各區塊配色 */
+        /* 1. 簡單遊戲 */
+        .card-simple { border-bottom: 6px solid var(--primary); }
+        .card-simple .icon { color: var(--primary); }
+        .card-simple .card-title { color: var(--primary); }
+
+        /* 2. 知識殿堂 */
+        .card-know { border-bottom: 6px solid var(--secondary); }
+        .card-know .icon { color: var(--secondary); }
+        .card-know .card-title { color: var(--secondary); }
+
+        /* 3. 闖關地圖 (橫跨) */
+        .card-adv { border-bottom: 6px solid var(--danger); grid-column: span 2; background: linear-gradient(to bottom right, #fff, #fff5f5); }
+        .card-adv .icon { color: var(--danger); }
+        .card-adv .card-title { color: var(--danger); }
+
+        /* 4. 上傳競技 (橫跨) */
+        .card-upload { border-bottom: 6px solid var(--info); grid-column: span 2; background: linear-gradient(to bottom right, #fff, #f0f8ff); }
+        .card-upload .icon { color: var(--info); }
+        .card-upload .card-title { color: var(--info); }
+
+        /* 底部資訊 */
+        footer {
+            text-align: center; padding: 20px; color: #b0bec5; font-size: 0.8rem;
+            margin-top: 10px;
         }
-        
-        /* 各區塊專屬顏色 */
-        .card-simple .card-icon { background: #e3f2fd; color: #2196f3; } /* 藍 */
-        .card-arena .card-icon { background: #fff3e0; color: #ff9800; } /* 橘 */
-        .card-knowledge .card-icon { background: #e8f5e9; color: #4caf50; } /* 綠 */
-        .card-adventure .card-icon { background: #fce4ec; color: #e91e63; } /* 粉紅 */
 
-        .card-info { flex: 1; }
-        .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; display: block; }
-        .card-desc { font-size: 0.85rem; color: #7f8c8d; }
-        .card-arrow { color: #bdc3c7; font-size: 1.2rem; }
-
-        /* 特殊樣式：尚未開放的區域 (可選) */
-        .disabled-card { opacity: 0.6; filter: grayscale(0.8); pointer-events: none; }
-        .disabled-badge {
-            font-size: 0.7rem; background: #95a5a6; color: white;
-            padding: 2px 6px; border-radius: 4px; margin-left: 5px;
-            vertical-align: middle;
-        }
-
-        /* === 平板以上改為雙欄 === */
+        /* 模擬手機螢幕寬度 (桌機看的時候比較準) */
         @media (min-width: 600px) {
-            .menu-container { grid-template-columns: 1fr 1fr; }
-        }
-
-        /* === 導航欄樣式 (與其他頁面統一) === */
-        #jetpay-navbar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid #eee;
-            display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 9999;
-        }
-        .nav-item {
-            text-decoration: none; color: #95a5a6; text-align: center;
-            font-size: 0.75rem; flex: 1; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: 0.2s; position: relative;
-        }
-        .nav-icon { font-size: 1.6rem; margin-bottom: 2px; transition: 0.2s; }
-        .nav-item:hover { color: #2c3e50; }
-        .nav-item:hover .nav-icon { transform: translateY(-3px); }
-        .nav-item:active { transform: scale(0.9); }
-        
-        /* 競技場按鈕特別樣式 */
-        .nav-item-special { color: #e67e22; font-weight: bold; }
-        .nav-item-special .nav-icon { 
-            background: #e67e22; color: white; width: 45px; height: 45px; 
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); margin-bottom: 5px;
-            margin-top: -20px; border: 4px solid white;
-        }
-
-        /* 當前頁面 active 狀態 */
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-
-        @media (min-width: 600px) {
-            #jetpay-navbar {
-                width: 100%; max-width: 500px;
-                left: 50%; transform: translateX(-50%);
-                bottom: 20px; border-radius: 50px; border: 1px solid #ddd;
+            body { background: #cfd8dc; }
+            #app-frame {
+                max-width: 480px; margin: 0 auto; background: var(--light); min-height: 100vh;
+                box-shadow: 0 0 30px rgba(0,0,0,0.1);
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="home-header">
-        <div class="welcome-text">Welcome back!</div>
-        <h1 class="app-title">傑特佩 JETPAY</h1>
-        <div class="class-badge">Classroom 301</div>
-    </div>
+<div id="app-frame">
+    <header>
+        <h1>🎮 傑特佩小遊戲網</h1>
+        <div class="subtitle">Jeatpei Game Network</div>
+    </header>
 
     <div class="menu-container">
-        <a href="jetpay_game_center.html" class="menu-card card-arena">
-            <div class="card-icon">🏆</div>
-            <div class="card-info">
-                <span class="card-title">遊戲王競技場</span>
-                <span class="card-desc">創造、上傳、PK排行</span>
-            </div>
-            <div class="card-arrow">➜</div>
-        </a>
-
-        <a href="knowledge_games.html" class="menu-card card-knowledge">
-            <div class="card-icon">📚</div>
-            <div class="card-info">
-                <span class="card-title">小學知識殿堂</span>
-                <span class="card-desc">國語、數學、成語挑戰</span>
-            </div>
-            <div class="card-arrow">➜</div>
-        </a>
-
-        <a href="adventure_map.html" class="menu-card card-adventure">
-            <div class="card-icon">🏰</div>
-            <div class="card-info">
-                <span class="card-title">闖關升級地圖</span>
-                <span class="card-desc">完成任務，解鎖新地圖</span>
-            </div>
-            <div class="card-arrow">➜</div>
-        </a>
-
         <a href="simple_games.html" class="menu-card card-simple">
-            <div class="card-icon">🧩</div>
-            <div class="card-info">
-                <span class="card-title">簡單遊戲區</span>
-                <span class="card-desc">輕鬆小遊戲 <span class="disabled-badge">建置中</span></span>
-            </div>
-            <div class="card-arrow">➜</div>
+            <div class="icon">🧩</div>
+            <div class="card-title">簡單遊戲區</div>
+            <div class="card-desc">打地鼠．練反應<br>(1-4年級)</div>
+        </a>
+
+        <a href="knowledge_games.html" class="menu-card card-know">
+            <div class="icon">📚</div>
+            <div class="card-title">知識殿堂</div>
+            <div class="card-desc">國數社自英．全科挑戰<br>(3-6年級)</div>
+        </a>
+
+        <a href="adventure_map.html" class="menu-card card-adv">
+            <div class="icon">🏰</div>
+            <div class="card-title">時空大冒險</div>
+            <div class="card-desc">30關升級挑戰．收集道具．前往終點</div>
+        </a>
+
+        <a href="upload_zone.html" class="menu-card card-upload">
+            <div class="icon">🏆</div>
+            <div class="card-title">遊戲王競技場</div>
+            <div class="card-desc">上傳你的 Code．爭奪熱門排行冠軍</div>
         </a>
     </div>
 
-    <div id="jetpay-navbar">
-        <a href="index.html" class="nav-item active">
-            <span class="nav-icon">🏠</span>
-            <span>首頁</span>
-        </a>
-        <a href="simple_games.html" class="nav-item">
-            <span class="nav-icon">🧩</span>
-            <span>簡單</span>
-        </a>
-        <a href="jetpay_game_center.html" class="nav-item nav-item-special">
-            <span class="nav-icon">🏆</span>
-            <span>競技場</span>
-        </a>
-        <a href="knowledge_games.html" class="nav-item">
-            <span class="nav-icon">📚</span>
-            <span>知識</span>
-        </a>
-        <a href="adventure_map.html" class="nav-item">
-            <span class="nav-icon">🏰</span>
-            <span>闖關</span>
-        </a>
+    <div style="padding: 0 20px;">
+        <h3 style="margin-bottom: 10px; color: #546E7A; font-size: 1rem;">🔥 本週推薦</h3>
+        <div style="background: white; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer;" onclick="location.href='simple_games.html'">
+            <span style="font-size: 2rem;">🐹</span>
+            <div>
+                <div style="font-weight: bold; color: #333;">瘋狂打地鼠</div>
+                <div style="font-size: 0.8rem; color: #888;">簡單好玩，快來挑戰最高分！</div>
+            </div>
+        </div>
     </div>
+
+    <footer>
+        Designed for Students<br>
+        &copy; 2025 傑特佩小遊戲網
+    </footer>
+</div>
+
+<script>
+    console.log("傑特佩小遊戲網 - 系統就緒");
+</script>
 
 </body>
 </html>

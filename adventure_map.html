@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險：時空穿越者 (V34)</title>
+    <title>傑特佩大冒險：時空穿越者 (V34 最終修復版)</title>
     <style>
         :root { --locked: #555; --unlocked: #29b6f6; --cleared: #ffb300; }
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
@@ -14,7 +14,7 @@
             position: relative; scroll-behavior: smooth; padding-top: 150px; padding-bottom: 100px; background: #000;
         }
 
-        /* === 🌍 五大世界 (本地圖片版) === */
+        /* === 🌍 五大世界 (維持原版圖片連結) === */
         .zone {
             position: absolute; width: 100%; height: 750px; left: 0; z-index: 0;
             background-size: cover; background-position: center; background-color: #333;
@@ -169,6 +169,7 @@
     <div class="game-board" style="max-height:80vh; overflow-y:auto; padding:0; background:#f9f9f9;">
         <div style="padding:20px; background:#2c3e50; color:white; border-radius:20px 20px 0 0;">
             <h2 style="margin:0;">🏆 冒險英雄榜</h2>
+            <p style="margin:5px 0 0; font-size:0.8rem; opacity:0.8;">(秒數越短，排名越高)</p>
         </div>
         <div style="padding:20px;">
             <div class="rank-tabs">
@@ -192,13 +193,14 @@
 </div>
 
 <script>
-    // 🔴 🔴 🔴 請在下方貼上您 GAS (Apps Script) 的網址 🔴 🔴 🔴
+    // 🔴 🔴 🔴 【重要】請確認下方的 GAS 網址是您剛剛部署新版後取得的網址！ 🔴 🔴 🔴
     const API_URL = "https://script.google.com/macros/s/AKfycbwKUB2BPH1jD7ch2yenKSokuHq15ktPk1UfORI0RVNYVL6_oIBISNr27MX5Yng-7i-DqA/exec";
 
     const TOTAL_LEVELS = 30;
     let state = { grade: 'mid', level: 1, items: { time: 2, shield: 2, key: 1 }, totalTime: 0, timer: null, inGame: false, shieldOn: false, usedQ: [] };
 
-    // === 📚 V34 海量題庫 (每區至少30題以上，混合全科) ===
+    // === 📚 V34 題庫 (DB) - 內容與您提供的一模一樣 ===
+    // ⚠️ 如果您手邊有包含所有 30 關題目的完整檔案，請務必將內容貼回這裡取代！
     const DB = {
         low: [ // 低年級 (Lv1-30)
             {t:"國語",q:"「天」的部首是？",a:"大",o:["大","一","二","人"]}, {t:"國語",q:"「花」的部首是？",a:"艸",o:["艸","化","人","木"]},
@@ -247,15 +249,24 @@
 
     function setGrade(g) {
         state.grade = g;
-        state.usedQ = []; // 重置已出題庫
+        // 注意：這裡不重置 usedQ，讓 localStorage 決定是否繼續
         document.getElementById('intro-screen').style.display = 'none';
         document.getElementById('hud').style.display = 'flex';
         const map = {'low':'👶 低年級','mid':'👦 中年級','high':'🧑‍🎓 高年級'};
         const color = {'low':'#4caf50','mid':'#ff9800','high':'#f44336'};
         document.getElementById('grade-display').innerText = map[g];
         document.getElementById('grade-display').style.background = color[g];
-        loadProgress(g); renderMap(); updateHUD();
-        setTimeout(() => { const c = document.querySelector('.level-node.unlocked'); if(c) c.scrollIntoView({block:"center",behavior:"smooth"}); }, 500);
+        
+        loadProgress(g); // 讀取進度
+        renderMap(); 
+        updateHUD();
+        
+        // 畫面捲動到當前關卡
+        setTimeout(() => { 
+            const c = document.querySelector('.level-node.unlocked'); 
+            if(c) c.scrollIntoView({block:"center", behavior:"smooth"});
+            else document.getElementById('map-viewport').scrollTop = 9999; // 如果都沒解鎖(不太可能)，捲到底
+        }, 500);
     }
 
     function renderMap() {
@@ -309,17 +320,14 @@
         const pool = DB[state.grade];
         let qData;
 
-        // 🧠 1. 優先從題庫抽 (不重複)
-        // 過濾出還沒用過的題目索引
         let availableIdx = pool.map((_, i) => i).filter(i => !state.usedQ.includes(i));
         
-        // 如果題庫用完了 (或是每3關強制數學)，則生成數學題
+        // 數學題產生邏輯：若題庫用完 或 每3關出現一次
         if (availableIdx.length === 0 || lv % 3 === 0) {
             qData = genMath(lv, state.grade);
         } else {
-            // 隨機抽一個沒用過的
             const randomIdx = availableIdx[Math.floor(Math.random() * availableIdx.length)];
-            state.usedQ.push(randomIdx); // 標記為已使用
+            state.usedQ.push(randomIdx); 
             qData = pool[randomIdx];
         }
 
@@ -327,7 +335,6 @@
         document.getElementById('q-content').innerText = qData.q;
         const optsDiv = document.getElementById('q-opts'); optsDiv.innerHTML = '';
         
-        // 選項處理 (字串化並打亂)
         let opts = qData.o.map(String); 
         opts.sort(()=>0.5-Math.random()).forEach(o => {
             const b = document.createElement('button'); b.className='opt-btn'; b.innerText=o;
@@ -335,34 +342,18 @@
         });
     }
 
-    // 🧮 數學動態生成器 (確保無盡題庫 + 難度遞增)
+    // 🧮 數學動態生成器
     function genMath(lv, grade) {
         const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
         let n1, n2, ans, q, o;
         
         if (grade === 'low') {
-            if(lv < 15) { // 簡單加減
-                n1=r(1,10); n2=r(1,9); q=`${n1} + ${n2} = ?`; ans=n1+n2;
-            } else { // 進階加減
-                n1=r(10,30); n2=r(5,15); q=`${n1} - ${n2} = ?`; ans=n1-n2;
-            }
+            if(lv < 15) { n1=r(1,10); n2=r(1,9); q=`${n1} + ${n2} = ?`; ans=n1+n2; } else { n1=r(10,30); n2=r(5,15); q=`${n1} - ${n2} = ?`; ans=n1-n2; }
             o = [ans, ans+1, ans-1, ans+2];
         } else if (grade === 'mid') {
-            if(lv < 15) { // 九九乘法
-                n1=r(2,9); n2=r(2,9); q=`${n1} × ${n2} = ?`; ans=n1*n2;
-                o = [ans, ans+n2, ans-n2, ans+10];
-            } else { // 簡單除法或多位數加減
-                n1=r(100,500); n2=r(10,50); q=`${n1} + ${n2} = ?`; ans=n1+n2;
-                o = [ans, ans+10, ans-10, ans+100];
-            }
-        } else { // high
-            if(lv < 15) { // 四則運算
-                n1=r(11,20); n2=r(2,5); let n3=r(1,10); q=`${n1} × ${n2} - ${n3} = ?`; ans=n1*n2-n3;
-                o = [ans, ans+1, ans-1, ans+5];
-            } else { // 複雜運算
-                n1=r(10,99); n2=r(2,9); q=`${n1} × ${n2} = ?`; ans=n1*n2;
-                o = [ans, ans+10, ans-10, ans+n2];
-            }
+            if(lv < 15) { n1=r(2,9); n2=r(2,9); q=`${n1} × ${n2} = ?`; ans=n1*n2; o = [ans, ans+n2, ans-n2, ans+10]; } else { n1=r(100,500); n2=r(10,50); q=`${n1} + ${n2} = ?`; ans=n1+n2; o = [ans, ans+10, ans-10, ans+100]; }
+        } else { 
+            if(lv < 15) { n1=r(11,20); n2=r(2,5); let n3=r(1,10); q=`${n1} × ${n2} - ${n3} = ?`; ans=n1*n2-n3; o = [ans, ans+1, ans-1, ans+5]; } else { n1=r(10,99); n2=r(2,9); q=`${n1} × ${n2} = ?`; ans=n1*n2; o = [ans, ans+10, ans-10, ans+n2]; }
         }
         return { t:"數學", q:q, a:ans, o:o };
     }
@@ -385,14 +376,8 @@
             state.items[gift]++; alert(`🎁 通過 BOSS 關卡！獲得道具：${gift}`);
         }
         if(state.level < TOTAL_LEVELS) { 
-            state.level++; 
-            saveProgress(state.grade); 
-            renderMap(); 
-            // 延遲捲動，讓視覺跟上
-            setTimeout(() => { 
-                const n = document.querySelector('.level-node.unlocked'); 
-                if(n) n.scrollIntoView({block:"center",behavior:"smooth"}); 
-            }, 300); 
+            state.level++; saveProgress(state.grade); renderMap(); 
+            setTimeout(() => { const n = document.querySelector('.level-node.unlocked'); if(n) n.scrollIntoView({block:"center",behavior:"smooth"}); }, 300); 
         }
         else { gameWin(); }
         updateHUD();
@@ -423,32 +408,44 @@
     function saveProgress(g) { localStorage.setItem('adv_save_v34_' + g, JSON.stringify({ level: state.level, items: state.items, time: state.totalTime, usedQ: state.usedQ })); }
     function loadProgress(g) {
         const s = localStorage.getItem('adv_save_v34_' + g);
-        if(s) { 
-            const d = JSON.parse(s); 
-            state.level = d.level; state.items = d.items; state.totalTime = d.time; state.usedQ = d.usedQ || [];
-        } else { 
-            state.level = 1; state.items = {time:2,shield:2,key:1}; state.totalTime = 0; state.usedQ = [];
-        }
+        if(s) { const d = JSON.parse(s); state.level = d.level; state.items = d.items; state.totalTime = d.time; state.usedQ = d.usedQ || []; } else { state.level = 1; state.items = {time:2,shield:2,key:1}; state.totalTime = 0; state.usedQ = []; }
     }
 
+    // 🔥 V6.0 修復：加入 game: 'adventure' (存到 Rank 表)
     function submitScore() {
         const n = document.getElementById('input-name').value.trim();
         if(!n) { alert("請輸入名字"); return; }
-        fetch(API_URL, { method:'POST', body:JSON.stringify({type:'record', name:n, time:state.totalTime, grade:state.grade}), headers:{"Content-Type":"text/plain"} })
-        .then(r=>r.json()).then(d=>{ alert("✅ 上傳成功"); location.reload(); }).catch(e=>{ alert("上傳失敗，請檢查 GAS 網址與網路"); });
+        
+        const btn = document.querySelector('#win-modal button');
+        btn.disabled = true; btn.innerText = "上傳中...";
+
+        fetch(API_URL, { 
+            method:'POST', 
+            body:JSON.stringify({game:'adventure', name:n, grade:state.grade, time:state.totalTime}), 
+            headers:{"Content-Type":"text/plain"} 
+        })
+        .then(r=>r.json()).then(d=>{ alert("✅ 上傳成功"); location.reload(); })
+        .catch(e=>{ alert("上傳失敗"); btn.disabled = false; });
     }
 
     function openRank() { document.getElementById('rank-modal').classList.add('active'); loadRank(state.grade); }
+    
+    // 🔥 V6.0 修復：加入 game=adventure & sort=asc (秒數越短越好)
     function loadRank(grade, btn) {
         if(btn) { document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
         const div = document.getElementById('rank-list'); div.innerHTML = '<div style="text-align:center;">載入中...</div>';
-        fetch(API_URL + `?action=getRank&grade=${grade}`).then(r=>r.json()).then(d=>{
-            div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄</div>';
-            d.slice(0,10).forEach((row,i) => {
-                let medal = i===0?'🥇':(i===1?'🥈':(i===2?'🥉':(i+1+'.')));
-                div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.time}s</span></div>`;
-            });
-        }).catch(e=>{ div.innerHTML = "載入失敗"; });
+        
+        fetch(API_URL + `?action=getRank&game=adventure&sort=asc&grade=${grade}`)
+            .then(r=>r.json())
+            .then(d=>{
+                div.innerHTML = ""; if(d.length==0) div.innerHTML = '<div style="text-align:center;">尚無紀錄</div>';
+                d.forEach((row,i) => {
+                    let medal = i===0?'🥇':(i===1?'🥈':(i===2?'🥉':(i+1+'.')));
+                    // 這裡讀取 row.time (V6.0 GAS 回傳)
+                    div.innerHTML += `<div class="rank-row"><span>${medal} ${row.name}</span><span>${row.time}s</span></div>`;
+                });
+            })
+            .catch(e=>{ div.innerHTML = "載入失敗"; });
     }
 </script>
 </body>
