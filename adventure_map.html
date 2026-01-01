@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>傑特佩大冒險 (V34.5)</title>
+    <title>傑特佩大冒險 (V34.6 最終修正)</title>
     <style>
         :root { --locked: #555; --unlocked: #29b6f6; --cleared: #ffb300; }
         body { font-family: '微軟正黑體', sans-serif; margin: 0; padding: 0; background: #111; color: white; user-select: none; overflow: hidden; }
@@ -14,7 +14,7 @@
             position: relative; scroll-behavior: smooth; padding-top: 150px; padding-bottom: 100px; background: #000;
         }
 
-        /* === 🌍 五大世界 (背景圖) === */
+        /* === 🌍 五大世界 === */
         .zone {
             position: absolute; width: 100%; height: 750px; left: 0; z-index: 0;
             background-size: cover; background-position: center; background-color: #333;
@@ -62,12 +62,11 @@
         .final-node span { font-size: 3rem; margin-bottom: -5px; }
 
         /* === UI 介面 === */
-        .intro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .intro-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 5000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .grade-btn { width: 80%; max-width: 300px; padding: 20px; margin: 10px; border: none; border-radius: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 6px 0 rgba(0,0,0,0.5); }
         .grade-btn:active { transform: translateY(6px); box-shadow: none; }
         .g-low { background: #4caf50; } .g-mid { background: #ff9800; } .g-high { background: #f44336; }
         
-        /* 增加排行榜按鈕樣式 */
         .rank-btn-intro {
             margin-top: 20px; padding: 10px 30px; background: transparent; 
             border: 2px solid rgba(255,255,255,0.3); color: #fff; border-radius: 50px; 
@@ -80,7 +79,8 @@
         .item-count { position: absolute; bottom: -2px; right: -5px; background: #e74c3c; font-size: 0.75rem; padding: 2px 6px; border-radius: 10px; border:1px solid white; font-weight: bold; }
         .grade-badge { padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 200; flex-direction: column; backdrop-filter: blur(8px); }
+        /* 🔥【關鍵修正】將 modal 的 z-index 提高到 10000，確保蓋過 Intro (5000) */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 10000; flex-direction: column; backdrop-filter: blur(8px); }
         .modal.active { display: flex; animation: fadeIn 0.3s; } @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         
         .game-board { background: #f5f5f5; color: #333; width: 90%; max-width: 450px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; border: 5px solid #fff; }
